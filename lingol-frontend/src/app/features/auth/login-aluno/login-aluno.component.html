@@ -1,0 +1,33 @@
+<section class="max-w-md mx-auto my-auto p-8 bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] w-full mt-10 animate-fade-in">
+  <div class="text-center mb-6">
+    <span class="bg-lingol-cardBlue text-xs font-bold px-3 py-1 rounded-full border border-lingol-dark text-lingol-primary">
+      Jornada do Aluno
+    </span>
+    <h2 class="text-2xl font-bold mt-2">Sala de Missões</h2>
+  </div>
+  
+  <div class="space-y-4">
+    <div>
+      <label class="text-xs font-bold block mb-1">SEU NOME COMPLETO</label>
+      <input type="text" [(ngModel)]="credenciais.Nome" placeholder="Ex: Lucas Silva" 
+             class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
+    </div>
+    <div>
+      <label class="text-xs font-bold block mb-1">NÚMERO DE MATRÍCULA</label>
+      <input type="text" [(ngModel)]="credenciais.Matricula" placeholder="Ex: 202601" 
+             class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm font-mono focus:outline-none focus:border-lingol-primary">
+    </div>
+
+    @if (mensagemErro) {
+      <div class="text-red-500 text-xs font-bold text-center">{{ mensagemErro }}</div>
+    }
+
+    <button (click)="fazerLogin()" [disabled]="carregando" class="btn-lingol bg-[#ffde59] w-full text-center mt-4 text-black">
+      @if (carregando) {
+        <i class="fa-solid fa-circle-notch animate-spin"></i> Entrando...
+      } @else {
+        Iniciar Jogo
+      }
+    </button>
+  </div>
+</section>

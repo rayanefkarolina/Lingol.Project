@@ -1,0 +1,20 @@
+<div class="bg-lingol-bg text-lingol-dark font-sans min-h-screen flex flex-col justify-between">
+  <header class="p-4 flex justify-between items-center max-w-6xl mx-auto w-full">
+    <div class="flex items-center gap-3 cursor-pointer" routerLink="/">
+      <i class="fa-solid fa-message text-3xl text-lingol-primary"></i>
+      <span class="font-black text-2xl tracking-wider text-lingol-primary">LINGOL</span>
+    </div>
+    
+    <div *ngIf="false" class="text-sm bg-white border border-lingol-dark px-3 py-1 rounded-full shadow-sm">
+      <span class="font-bold"></span>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 py-8 flex flex-col">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="text-center py-6 text-xs font-bold text-gray-400">
+    Lingol • EdTech de Aprendizagem Imersiva • .NET 9 + Angular 17
+  </footer>
+</div>
