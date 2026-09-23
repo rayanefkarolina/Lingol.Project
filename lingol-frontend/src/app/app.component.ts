@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterModule } from '@angular/router'; // <-- Adicionado RouterModule
+import { RouterModule, RouterOutlet } from '@angular/router';
+import { AuthService } from './core/auth.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterModule], // <-- Adicionado aqui também
+  imports: [CommonModule, RouterOutlet, RouterModule],
   templateUrl: './app.component.html'
 })
 export class AppComponent {
+  auth = inject(AuthService);
   title = 'Lingol';
 }

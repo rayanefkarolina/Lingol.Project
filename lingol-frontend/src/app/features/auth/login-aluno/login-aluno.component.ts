@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/auth.service';
 
 @Component({
   selector: 'app-login-aluno',
@@ -11,29 +11,31 @@ import { Router } from '@angular/router';
   templateUrl: './login-aluno.component.html'
 })
 export class LoginAlunoComponent {
-  private http = inject(HttpClient);
+  private auth = inject(AuthService);
   private router = inject(Router);
 
-  credenciais = { Nome: '', Matricula: '' };
-  carregando = false;
-  mensagemErro = '';
+  credenciais = { nome: '', matricula: '' };
+  carregando = signal(false);
+  mensagemErro = signal('');
 
-  fazerLogin() {
-    this.carregando = true;
-    this.mensagemErro = '';
+  fazerLogin(): void {
+    if (!this.credenciais.nome.trim() || !this.credenciais.matricula.trim()) {
+      this.mensagemErro.set('Preencha seu nome e o número de matrícula.');
+      return;
+    }
 
-    // Chamada REAL para a Cadastro.API no endpoint do Aluno
-    this.http.post('http://localhost:5030/api/auth/aluno/login', this.credenciais)
+    this.carregando.set(true);
+    this.mensagemErro.set('');
+
+    this.auth.loginAluno(this.credenciais.nome.trim(), this.credenciais.matricula.trim())
       .subscribe({
-        next: (response: any) => {
-          this.carregando = false;
-          localStorage.setItem('lingol_token', response.accessToken);
-          this.router.navigate(['/atividade']);
+        next: () => {
+          this.carregando.set(false);
+          this.router.navigate(['/aluno']);
         },
-        error: (err) => {
-          this.carregando = false;
-          this.mensagemErro = 'Nome ou número de matrícula incorretos.';
-          console.error(err);
+        error: () => {
+          this.carregando.set(false);
+          this.mensagemErro.set('Nome ou número de matrícula incorretos.');
         }
       });
   }

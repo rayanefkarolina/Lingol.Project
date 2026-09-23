@@ -1,0 +1,97 @@
+<section class="animate-fade-in max-w-3xl mx-auto w-full space-y-6">
+
+  @switch (etapa()) {
+
+    @case ('carregando') {
+      <div class="text-center py-16 text-gray-400">
+        <i class="fa-solid fa-circle-notch animate-spin text-2xl"></i>
+      </div>
+    }
+
+    @case ('erro') {
+      <div class="bg-white border-2 border-red-300 rounded-3xl p-10 text-center space-y-4">
+        <i class="fa-solid fa-triangle-exclamation text-4xl text-red-400"></i>
+        <p class="font-bold text-red-600">{{ mensagemErro() }}</p>
+        <a routerLink="/aluno" class="btn-lingol btn-primary inline-block">Voltar</a>
+      </div>
+    }
+
+    @case ('respondendo') {
+      <div>
+        <h1 class="text-2xl font-black text-lingol-primary">{{ atividade()?.assunto }}</h1>
+        <p class="text-sm font-medium text-gray-600">{{ atividade()?.livro }}</p>
+      </div>
+
+      <!-- Progresso -->
+      <div>
+        <div class="flex justify-between text-xs font-bold text-gray-500 mb-1">
+          <span>Questão {{ indiceAtual() + 1 }} de {{ total() }}</span>
+          <span>{{ acertos() }} acertos</span>
+        </div>
+        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div class="h-full bg-lingol-primary rounded-full transition-all duration-300"
+               [style.width.%]="progresso()"></div>
+        </div>
+      </div>
+
+      <div class="bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] p-6 space-y-5">
+        <p class="text-lg font-bold leading-snug">{{ questaoAtual()?.enunciado }}</p>
+
+        <div class="space-y-3">
+          @for (alternativa of questaoAtual()?.alternativas; track $index) {
+            <button (click)="responder($index)"
+                    [disabled]="escolhida() !== null"
+                    class="w-full text-left p-4 rounded-2xl border-2 font-medium transition-all disabled:cursor-not-allowed"
+                    [class]="escolhida() === null
+                      ? 'border-gray-300 bg-white hover:border-lingol-primary'
+                      : (escolhida() === $index
+                          ? (correcao()?.acertou ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50')
+                          : 'border-gray-200 bg-gray-50 opacity-60')">
+              <span class="font-black text-lingol-primary mr-2">{{ letra($index) }})</span>
+              {{ alternativa }}
+              @if (escolhida() === $index && correcao(); as c) {
+                <i class="fa-solid float-right mt-1"
+                   [class]="c.acertou ? 'fa-circle-check text-green-600' : 'fa-circle-xmark text-red-600'"></i>
+              }
+            </button>
+          }
+        </div>
+
+        @if (correcao(); as c) {
+          <div class="rounded-2xl p-4 border-2"
+               [class]="c.acertou ? 'bg-green-50 border-green-300' : 'bg-amber-50 border-amber-300'">
+            <p class="font-black text-sm mb-1" [class]="c.acertou ? 'text-green-700' : 'text-amber-700'">
+              {{ c.acertou ? 'Você acertou!' : 'Não foi dessa vez.' }}
+            </p>
+            @if (c.explicacao) {
+              <p class="text-sm text-gray-700 leading-relaxed">{{ c.explicacao }}</p>
+            }
+          </div>
+
+          <button (click)="avancar()" class="btn-lingol btn-primary w-full">
+            {{ ehUltima() ? 'Ver meu resultado' : 'Próxima questão' }}
+          </button>
+        }
+      </div>
+    }
+
+    @case ('fim') {
+      @if (resultadoFinal(); as r) {
+        <div class="bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] p-10 text-center space-y-4">
+          <i class="fa-solid fa-circle-check text-6xl"
+             [class]="r.acertos >= r.total / 2 ? 'text-green-500' : 'text-amber-500'"></i>
+
+          <h2 class="text-2xl font-black text-lingol-primary">Atividade concluída!</h2>
+
+          <p class="text-6xl font-black text-lingol-dark">{{ r.acertos }}/{{ r.total }}</p>
+          <p class="font-bold text-gray-700">{{ r.mensagem }}</p>
+
+          <a routerLink="/aluno" class="btn-lingol btn-primary inline-block mt-4">
+            Voltar para as atividades
+          </a>
+        </div>
+      }
+    }
+  }
+
+</section>

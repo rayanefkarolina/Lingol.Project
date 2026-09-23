@@ -1,13 +1,22 @@
 <div class="bg-lingol-bg text-lingol-dark font-sans min-h-screen flex flex-col justify-between">
   <header class="p-4 flex justify-between items-center max-w-6xl mx-auto w-full">
-    <div class="flex items-center gap-3 cursor-pointer" routerLink="/">
+    <div class="flex items-center gap-3 cursor-pointer" [routerLink]="auth.ehProfessor() ? '/professor' : '/'">
       <i class="fa-solid fa-message text-3xl text-lingol-primary"></i>
       <span class="font-black text-2xl tracking-wider text-lingol-primary">LINGOL</span>
     </div>
-    
-    <div *ngIf="false" class="text-sm bg-white border border-lingol-dark px-3 py-1 rounded-full shadow-sm">
-      <span class="font-bold"></span>
-    </div>
+
+    @if (auth.usuario(); as usuario) {
+      <div class="flex items-center gap-3">
+        <div class="text-sm bg-white border-2 border-lingol-dark px-3 py-1 rounded-full shadow-[2px_2px_0px_#1e1b4b]">
+          <span class="font-bold">{{ usuario.nome }}</span>
+          <span class="text-xs text-gray-500 ml-1">{{ usuario.papel }}</span>
+        </div>
+        <button (click)="auth.sair()" title="Sair"
+                class="w-9 h-9 rounded-full border-2 border-lingol-dark bg-white hover:bg-red-50 transition-colors">
+          <i class="fa-solid fa-arrow-right-from-bracket text-sm"></i>
+        </button>
+      </div>
+    }
   </header>
 
   <main class="flex-1 max-w-6xl mx-auto w-full px-4 py-8 flex flex-col">
@@ -15,6 +24,6 @@
   </main>
 
   <footer class="text-center py-6 text-xs font-bold text-gray-400">
-    Lingol • EdTech de Aprendizagem Imersiva • .NET 9 + Angular 17
+    Lingol • EdTech de Aprendizagem Imersiva • .NET 9 + Angular 19
   </footer>
 </div>

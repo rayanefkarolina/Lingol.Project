@@ -1,0 +1,163 @@
+<section class="animate-fade-in space-y-6">
+
+  <a [routerLink]="['/professor/turmas', turmaId]" class="text-xs font-bold text-gray-500 hover:text-lingol-primary">
+    <i class="fa-solid fa-arrow-left"></i> Voltar para a turma
+  </a>
+
+  @if (carregando()) {
+    <div class="text-center py-16 text-gray-400">
+      <i class="fa-solid fa-circle-notch animate-spin text-2xl"></i>
+    </div>
+  } @else if (mensagemErro()) {
+    <div class="bg-red-50 border-2 border-red-300 text-red-700 rounded-2xl p-3 text-sm font-bold">
+      {{ mensagemErro() }}
+    </div>
+  } @else if (relatorio()) {
+    @if (relatorio()!; as r) {
+
+    <div>
+      <h1 class="text-3xl font-black text-lingol-primary">Dashboard diagnóstico</h1>
+      <p class="text-sm font-medium text-gray-600">{{ r.nomeTurma }} • {{ r.ano }}º ano</p>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="grid sm:grid-cols-4 gap-3">
+      <div class="bg-white border-2 border-lingol-dark rounded-2xl p-4 text-center">
+        <p class="text-2xl font-black text-lingol-primary">{{ r.alunosQueEntregaram }}/{{ r.totalAlunos }}</p>
+        <p class="text-[11px] font-bold text-gray-500 uppercase">Entregaram</p>
+      </div>
+      <div class="bg-white border-2 border-lingol-dark rounded-2xl p-4 text-center">
+        <p class="text-2xl font-black" [class]="corDaNota(r.notaMediaTurma)">{{ r.notaMediaTurma ?? '—' }}</p>
+        <p class="text-[11px] font-bold text-gray-500 uppercase">Nota média</p>
+      </div>
+      <div class="bg-white border-2 border-lingol-dark rounded-2xl p-4 text-center">
+        <p class="text-2xl font-black text-lingol-primary">{{ r.atividadesPublicadas }}</p>
+        <p class="text-[11px] font-bold text-gray-500 uppercase">Atividades</p>
+      </div>
+      <div class="bg-white border-2 border-lingol-dark rounded-2xl p-4 text-center">
+        <p class="text-2xl font-black text-lingol-purple">{{ r.resumoTurma.length }}</p>
+        <p class="text-[11px] font-bold text-gray-500 uppercase">Tipos de lacuna</p>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+
+      <!-- Mapa de lacunas -->
+      <div class="bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] p-6 space-y-4">
+        <h2 class="font-black text-lg"><i class="fa-solid fa-map text-lingol-primary"></i> Mapa de lacunas</h2>
+
+        @if (r.resumoTurma.length === 0) {
+          <p class="text-sm text-gray-400 font-bold text-center py-6">
+            Ainda sem diagnóstico. Ele aparece assim que os alunos responderem.
+          </p>
+        } @else {
+          @for (d of r.resumoTurma; track d.tipo) {
+            <div class="flex items-center justify-between gap-3 border-b border-gray-100 pb-2 last:border-0">
+              <div>
+                <p class="font-bold text-sm">{{ rotulo(d.tipo) }}</p>
+                <p class="text-[11px] text-gray-500 font-medium">
+                  {{ d.quantidadeAlunosAfetados }} aluno(s) • {{ d.questoesComDificuldade.length }} questão(ões)
+                </p>
+              </div>
+              <span class="text-xl font-black text-lingol-purple">{{ d.quantidadeTotal }}</span>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Questões críticas -->
+      <div class="bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] p-6 space-y-3">
+        <h2 class="font-black text-lg"><i class="fa-solid fa-triangle-exclamation text-red-500"></i> Onde a turma travou</h2>
+
+        @if (r.questoesMaisErradas.length === 0) {
+          <p class="text-sm text-gray-400 font-bold text-center py-6">Nenhum erro registrado ainda.</p>
+        } @else {
+          @for (q of r.questoesMaisErradas; track q.questaoId) {
+            <div class="border-2 border-gray-200 rounded-2xl p-3">
+              <div class="flex items-start justify-between gap-3">
+                <p class="font-bold text-xs text-lingol-primary">{{ q.habilidade }}</p>
+                <span class="text-xs font-black text-red-600 whitespace-nowrap">{{ q.percentualErro }}% erro</span>
+              </div>
+              <p class="text-[11px] text-gray-600 mt-1 line-clamp-2">{{ q.enunciado }}</p>
+              <p class="text-[10px] text-gray-400 font-bold mt-1">{{ q.erros }} de {{ q.respostas }} respostas</p>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Alunos -->
+    <div class="bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] p-6 space-y-3">
+      <h2 class="font-black text-lg"><i class="fa-solid fa-users text-lingol-primary"></i> Aluno a aluno</h2>
+
+      @for (aluno of r.alunos; track aluno.alunoId) {
+        <div class="border-2 rounded-2xl overflow-hidden"
+             [class]="aluno.entregou ? 'border-gray-200' : 'border-dashed border-amber-300 bg-amber-50'">
+          <button (click)="abrirAluno(aluno)" class="w-full text-left p-3 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p class="font-bold text-sm truncate">
+                {{ aluno.nomeAluno }}
+                @if (aluno.perfilAee) {
+                  <span class="text-[10px] font-black bg-lingol-purple text-white px-2 py-0.5 rounded-full ml-1">
+                    {{ aluno.perfilAee }}
+                  </span>
+                }
+              </p>
+              @if (aluno.entregou) {
+                <p class="text-[11px] text-gray-500 font-medium">
+                  {{ aluno.totalAcertos }} acertos • {{ aluno.totalErros }} erros •
+                  {{ aluno.atividadesEntregues }} entrega(s)
+                </p>
+              } @else {
+                <p class="text-[11px] text-amber-700 font-bold">Ainda não entregou</p>
+              }
+            </div>
+            <div class="flex items-center gap-3 whitespace-nowrap">
+              <span class="text-lg font-black" [class]="corDaNota(aluno.notaMedia)">
+                {{ aluno.notaMedia ?? '—' }}
+              </span>
+              <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+            </div>
+          </button>
+
+          @if (alunoSelecionado()?.alunoId === aluno.alunoId) {
+            <div class="border-t-2 border-gray-100 p-4 bg-lingol-bg space-y-3">
+              @if (alunoSelecionado(); as detalhe) {
+                @if (detalhe.dificuldades.length > 0) {
+                  <div>
+                    <p class="text-xs font-black text-gray-500 uppercase mb-1">Dificuldades</p>
+                    <div class="flex flex-wrap gap-2">
+                      @for (d of detalhe.dificuldades; track d.tipo) {
+                        <span class="text-[11px] font-bold bg-white border-2 border-lingol-dark rounded-full px-3 py-1">
+                          {{ rotulo(d.tipo) }} ({{ d.quantidade }})
+                        </span>
+                      }
+                    </div>
+                  </div>
+                }
+
+                @for (entrega of detalhe.entregas; track entrega.respostaAlunoId) {
+                  <div class="bg-white border-2 border-gray-200 rounded-2xl p-3">
+                    <div class="flex items-center justify-between gap-2">
+                      <p class="font-bold text-xs">{{ entrega.assunto }}</p>
+                      <span class="text-xs font-black">{{ entrega.acertos }}/{{ entrega.totalQuestoes }}</span>
+                    </div>
+                    @if (entrega.feedbackGeral) {
+                      <p class="text-[11px] text-gray-600 mt-1 italic">"{{ entrega.feedbackGeral }}"</p>
+                    } @else if (!entrega.diagnosticoPronto) {
+                      <p class="text-[11px] text-gray-400 font-bold mt-1">
+                        <i class="fa-solid fa-circle-notch animate-spin"></i> Diagnóstico em andamento...
+                      </p>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+    }
+
+  }
+</section>

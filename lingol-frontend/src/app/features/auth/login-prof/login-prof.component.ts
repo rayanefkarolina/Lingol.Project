@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/auth.service';
 
 @Component({
   selector: 'app-login-prof',
@@ -11,37 +11,74 @@ import { Router } from '@angular/router';
   templateUrl: './login-prof.component.html'
 })
 export class LoginProfComponent {
-  private http = inject(HttpClient);
+  private auth = inject(AuthService);
   private router = inject(Router);
 
-  // Aqui ficam as variáveis reais do Angular
-  credenciais = { email: '', senha: '' };
-  carregando = false;
-  mensagemErro = '';
+  modoCadastro = signal(false);
+  carregando = signal(false);
+  mensagemErro = signal('');
+  mensagemSucesso = signal('');
 
-  fazerLogin() {
-    this.carregando = true;
-    this.mensagemErro = '';
+  credenciais = { nome: '', email: '', senha: '' };
 
-    // Chamada REAL para o backend .NET
-    this.http.post('http://localhost:5030/api/auth/professor/login', this.credenciais)
-      .subscribe({
-        next: (response: any) => {
-          this.carregando = false;
-          // Salva o Token JWT emitido pelo C#
-          localStorage.setItem('lingol_token', response.accessToken);
-          // Redireciona para o painel
-          this.router.navigate(['/dashboard-professor']);
-        },
-        error: (err) => {
-          this.carregando = false;
-          if (err.status === 401) {
-            this.mensagemErro = 'E-mail ou senha incorretos.';
-          } else {
-            this.mensagemErro = 'Erro ao conectar com o servidor.';
+  alternarModo(): void {
+    this.modoCadastro.set(!this.modoCadastro());
+    this.mensagemErro.set('');
+    this.mensagemSucesso.set('');
+  }
+
+  fazerLogin(): void {
+    this.carregando.set(true);
+    this.mensagemErro.set('');
+
+    this.auth.loginProfessor(this.credenciais.email, this.credenciais.senha).subscribe({
+      next: () => {
+        this.carregando.set(false);
+        this.router.navigate(['/professor']);
+      },
+      error: erro => {
+        this.carregando.set(false);
+        this.mensagemErro.set(
+          erro.status === 401
+            ? 'E-mail ou senha incorretos.'
+            : 'Erro ao conectar com o servidor.');
+      }
+    });
+  }
+
+  registrar(): void {
+    if (this.credenciais.senha.length < 8) {
+      this.mensagemErro.set('A senha precisa ter no mínimo 8 caracteres.');
+      return;
+    }
+
+    this.carregando.set(true);
+    this.mensagemErro.set('');
+
+    this.auth.registrarProfessor(
+      this.credenciais.nome,
+      this.credenciais.email,
+      this.credenciais.senha
+    ).subscribe({
+      next: () => {
+        // Já entra direto: evita pedir a senha duas vezes.
+        this.auth.loginProfessor(this.credenciais.email, this.credenciais.senha).subscribe({
+          next: () => {
+            this.carregando.set(false);
+            this.router.navigate(['/professor']);
+          },
+          error: () => {
+            this.carregando.set(false);
+            this.modoCadastro.set(false);
+            this.mensagemSucesso.set('Conta criada! Faça login para continuar.');
           }
-          console.error(err);
-        }
-      });
+        });
+      },
+      error: erro => {
+        this.carregando.set(false);
+        this.mensagemErro.set(
+          erro.error?.mensagem ?? 'Não foi possível criar a conta.');
+      }
+    });
   }
 }

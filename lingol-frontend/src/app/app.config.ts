@@ -1,12 +1,14 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http'; // <-- Importe isto
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
+import { authInterceptor } from './core/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient() // <-- Habilita a comunicação com o backend .NET
+    // O interceptor anexa o JWT em todas as chamadas às APIs .NET.
+    provideHttpClient(withInterceptors([authInterceptor]))
   ]
 };

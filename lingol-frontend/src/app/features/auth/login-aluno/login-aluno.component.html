@@ -9,21 +9,21 @@
   <div class="space-y-4">
     <div>
       <label class="text-xs font-bold block mb-1">SEU NOME COMPLETO</label>
-      <input type="text" [(ngModel)]="credenciais.Nome" placeholder="Ex: Lucas Silva" 
+      <input type="text" [(ngModel)]="credenciais.nome" placeholder="Ex: Lucas Silva" 
              class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
     </div>
     <div>
       <label class="text-xs font-bold block mb-1">NÚMERO DE MATRÍCULA</label>
-      <input type="text" [(ngModel)]="credenciais.Matricula" placeholder="Ex: 202601" 
+      <input type="text" [(ngModel)]="credenciais.matricula" placeholder="Ex: 202601" 
              class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm font-mono focus:outline-none focus:border-lingol-primary">
     </div>
 
-    @if (mensagemErro) {
-      <div class="text-red-500 text-xs font-bold text-center">{{ mensagemErro }}</div>
+    @if (mensagemErro()) {
+      <div class="text-red-500 text-xs font-bold text-center">{{ mensagemErro() }}</div>
     }
 
-    <button (click)="fazerLogin()" [disabled]="carregando" class="btn-lingol bg-[#ffde59] w-full text-center mt-4 text-black">
-      @if (carregando) {
+    <button (click)="fazerLogin()" [disabled]="carregando()" class="btn-lingol bg-[#ffde59] w-full text-center mt-4 text-black">
+      @if (carregando()) {
         <i class="fa-solid fa-circle-notch animate-spin"></i> Entrando...
       } @else {
         Iniciar Jogo

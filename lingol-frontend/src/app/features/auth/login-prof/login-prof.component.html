@@ -1,28 +1,49 @@
 <section class="max-w-md mx-auto my-auto p-8 bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] w-full mt-10 animate-fade-in">
-  <h2 class="text-2xl font-bold mb-6 text-center text-lingol-primary">Acesso do Educador</h2>
-  
+  <h2 class="text-2xl font-bold mb-6 text-center text-lingol-primary">
+    {{ modoCadastro() ? 'Criar conta de educador' : 'Acesso do Educador' }}
+  </h2>
+
   <div class="space-y-4">
-    <div>
-      <label class="text-xs font-bold block mb-1">E-MAIL INSTITUCIONAL</label>
-      <input type="email" [(ngModel)]="credenciais.email" placeholder="professor@escola.com" 
-             class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
-    </div>
-    <div>
-      <label class="text-xs font-bold block mb-1">SENHA</label>
-      <input type="password" [(ngModel)]="credenciais.senha" placeholder="Sua senha" 
-             class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
-    </div>
-    
-    @if (mensagemErro) {
-      <div class="text-red-500 text-xs font-bold text-center">{{ mensagemErro }}</div>
+
+    @if (modoCadastro()) {
+      <div>
+        <label class="text-xs font-bold block mb-1">NOME COMPLETO</label>
+        <input [(ngModel)]="credenciais.nome" placeholder="Ana Ribeiro"
+               class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
+      </div>
     }
 
-    <button (click)="fazerLogin()" [disabled]="carregando" class="btn-lingol btn-primary w-full text-center mt-4">
-      @if (carregando) {
-        <i class="fa-solid fa-circle-notch animate-spin"></i> Entrando...
+    <div>
+      <label class="text-xs font-bold block mb-1">E-MAIL INSTITUCIONAL</label>
+      <input type="email" [(ngModel)]="credenciais.email" placeholder="professor@escola.com"
+             class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
+    </div>
+
+    <div>
+      <label class="text-xs font-bold block mb-1">SENHA</label>
+      <input type="password" [(ngModel)]="credenciais.senha"
+             [placeholder]="modoCadastro() ? 'Mínimo 8 caracteres' : 'Sua senha'"
+             class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
+    </div>
+
+    @if (mensagemErro()) {
+      <div class="text-red-500 text-xs font-bold text-center">{{ mensagemErro() }}</div>
+    }
+    @if (mensagemSucesso()) {
+      <div class="text-green-600 text-xs font-bold text-center">{{ mensagemSucesso() }}</div>
+    }
+
+    <button (click)="modoCadastro() ? registrar() : fazerLogin()" [disabled]="carregando()"
+            class="btn-lingol btn-primary w-full text-center mt-4">
+      @if (carregando()) {
+        <i class="fa-solid fa-circle-notch animate-spin"></i> Aguarde...
       } @else {
-        Entrar no Sistema
+        {{ modoCadastro() ? 'Criar conta' : 'Entrar no Sistema' }}
       }
+    </button>
+
+    <button (click)="alternarModo()" class="w-full text-xs font-bold text-gray-500 hover:text-lingol-primary pt-2">
+      {{ modoCadastro() ? 'Já tenho conta' : 'Não tenho conta ainda' }}
     </button>
   </div>
 </section>

@@ -1,0 +1,98 @@
+/* Estética do tabuleiro, portada do modelo HTML do Lingolgard. */
+
+.game-container {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.game-overlay {
+  background: rgba(26, 26, 36, 0.9);
+}
+
+.btn-game {
+  background: linear-gradient(to bottom, #ffd700, #b8860b);
+  border: 3px solid #4a3728;
+  border-radius: 12px;
+  color: #1e1b4b;
+  font-weight: 900;
+  text-transform: uppercase;
+  box-shadow: 0 4px 0 #4a3728, 0 5px 15px rgba(0, 0, 0, 0.5);
+  transition: all 0.1s;
+}
+
+.btn-game:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #4a3728;
+}
+
+.btn-answer {
+  background: linear-gradient(to bottom, #374151, #1f2937);
+  border: 2px solid #4b5563;
+  color: white;
+  transition: all 0.2s;
+}
+
+.btn-answer:hover:not(:disabled) {
+  border-color: #ffd700;
+  transform: scale(1.02);
+}
+
+.btn-answer:disabled {
+  cursor: not-allowed;
+}
+
+.btn-answer.correct {
+  background: linear-gradient(to bottom, #10b981, #059669);
+  border-color: #047857;
+  opacity: 1;
+}
+
+.btn-answer.wrong {
+  background: linear-gradient(to bottom, #ef4444, #b91c1c);
+  border-color: #991b1b;
+  opacity: 1;
+}
+
+.slot {
+  width: 55px;
+  height: 55px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #555;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #888;
+  transition: 0.3s;
+}
+
+.slot.unlocked {
+  border-color: #ffd700;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.15);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  animation: pop 0.4s ease;
+}
+
+@keyframes pop {
+  50% { transform: scale(1.2); }
+}
+
+.modal-btn-ok {
+  background-color: #8b4513;
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #8b4513;
+}
+
+.modal-btn-ok:hover {
+  background-color: #a0522d;
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
