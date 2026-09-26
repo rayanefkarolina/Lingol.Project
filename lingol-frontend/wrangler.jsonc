@@ -1,0 +1,19 @@
+{
+  // Configuração do deploy na Cloudflare (Workers com static assets).
+  // O Lingol é um site estático: não há código de Worker, só os arquivos que o
+  // "ng build" gera. Por isso não existe a chave "main" aqui.
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  "name": "lingol",
+  "compatibility_date": "2026-09-26",
+
+  "assets": {
+    // Onde o Angular 19 deixa o site pronto. O "/browser" no fim é obrigatório.
+    "directory": "./dist/lingol-frontend/browser",
+
+    // Qualquer rota que não seja um arquivo existente devolve o index.html, e
+    // quem resolve o caminho é o Angular, no navegador. Sem isso, abrir direto
+    // https://.../login-aluno devolveria 404.
+    "not_found_handling": "single-page-application"
+  }
+}
