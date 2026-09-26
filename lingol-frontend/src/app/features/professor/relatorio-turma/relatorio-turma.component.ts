@@ -2,9 +2,12 @@ import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { RelatorioService } from '../../../core/lingol-api.service';
+import { AtividadeService, RelatorioService } from '../../../core/lingol-api.service';
 import { SignalRService } from '../../../core/signalr.service';
-import { DificuldadePorAluno, RelatorioAluno, RelatorioTurma, TipoDificuldade } from '../../../core/models';
+import {
+  DificuldadePorAluno, EntregaResumo, RelatorioAluno, RelatorioTurma, TipoDificuldade
+} from '../../../core/models';
+import { FundoLingolComponent } from '../../../shared/fundo-lingol.component';
 
 /** O enum chega como string quando configurado, ou índice quando serializado como número. */
 const ROTULOS: Record<string, string> = {
@@ -27,12 +30,13 @@ const ROTULOS: Record<string, string> = {
 @Component({
   selector: 'app-relatorio-turma',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FundoLingolComponent],
   templateUrl: './relatorio-turma.component.html'
 })
 export class RelatorioTurmaComponent implements OnDestroy {
   private rota = inject(ActivatedRoute);
   private relatorioService = inject(RelatorioService);
+  private atividadeService = inject(AtividadeService);
   private signalR = inject(SignalRService);
 
   private assinaturas: Subscription[] = [];
@@ -45,6 +49,10 @@ export class RelatorioTurmaComponent implements OnDestroy {
 
   alunoSelecionado = signal<RelatorioAluno | null>(null);
   carregandoAluno = signal(false);
+
+  /** Revisões em andamento, por entrega, para travar o botão e dar retorno. */
+  gerandoRevisao = signal<Record<string, boolean>>({});
+  revisaoCriada = signal<Record<string, string>>({});
 
   constructor() {
     this.carregar();
@@ -95,6 +103,34 @@ export class RelatorioTurmaComponent implements OnDestroy {
         this.carregandoAluno.set(false);
       },
       error: () => this.carregandoAluno.set(false)
+    });
+  }
+
+  /**
+   * Gera uma atividade de reforço só para este aluno, focada no que a IA
+   * diagnosticou nesta entrega. Cada aluno erra algo diferente, então a
+   * revisão não vai para a turma inteira.
+   */
+  gerarRevisao(entrega: EntregaResumo, alunoId: string): void {
+    if (this.gerandoRevisao()[entrega.respostaAlunoId]) return;
+
+    this.gerandoRevisao.update(m => ({ ...m, [entrega.respostaAlunoId]: true }));
+
+    this.atividadeService.gerarRevisao(entrega.atividadeId, alunoId).subscribe({
+      next: () => {
+        this.gerandoRevisao.update(m => ({ ...m, [entrega.respostaAlunoId]: false }));
+        this.revisaoCriada.update(m => ({
+          ...m,
+          [entrega.respostaAlunoId]: 'Revisão enviada! Ela aparece para o aluno quando a IA terminar.'
+        }));
+      },
+      error: erro => {
+        this.gerandoRevisao.update(m => ({ ...m, [entrega.respostaAlunoId]: false }));
+        this.revisaoCriada.update(m => ({
+          ...m,
+          [entrega.respostaAlunoId]: erro.error?.erro ?? 'Não foi possível gerar a revisão.'
+        }));
+      }
     });
   }
 

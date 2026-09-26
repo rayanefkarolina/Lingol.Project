@@ -53,9 +53,10 @@ export class AuthService {
     return this.http.post(`${environment.cadastroApi}/api/auth/professor/register`, { nome, email, senha });
   }
 
-  loginAluno(nome: string, matricula: string): Observable<LoginAlunoResponse> {
+  /** Sem fricção: o aluno entra apenas com o número de matrícula. */
+  loginAluno(matricula: string): Observable<LoginAlunoResponse> {
     return this.http
-      .post<LoginAlunoResponse>(`${environment.cadastroApi}/api/auth/aluno/login`, { nome, matricula })
+      .post<LoginAlunoResponse>(`${environment.cadastroApi}/api/auth/aluno/login`, { matricula })
       .pipe(tap(r => this.salvarToken(r.accessToken)));
   }
 

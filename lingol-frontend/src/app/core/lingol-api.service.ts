@@ -30,15 +30,15 @@ export class TurmaService {
     return this.http.get<Aluno[]>(`${this.base}/turmas/${turmaId}/alunos`);
   }
 
+  /** A matrícula é gerada pelo backend e volta preenchida no aluno criado. */
   cadastrarAluno(
     turmaId: string,
     nome: string,
-    matricula: string,
     tipoNecessidadeAee?: string,
     observacoesAee?: string
   ): Observable<Aluno> {
     return this.http.post<Aluno>(`${this.base}/turmas/${turmaId}/alunos`, {
-      nome, matricula, tipoNecessidadeAee, observacoesAee
+      nome, tipoNecessidadeAee, observacoesAee
     });
   }
 
@@ -90,6 +90,16 @@ export class AtividadeService {
     return this.http.post<ResponderQuestaoResponse>(
       `${this.base}/${atividadeId}/respostas/questao`,
       { questaoId, respostaEscolhida, tempoSegundos });
+  }
+
+  /**
+   * Gera uma atividade de revisão individual, focada no que a IA diagnosticou
+   * para aquele aluno. Só o professor dono da turma pode chamar.
+   */
+  gerarRevisao(atividadeId: string, alunoId: string, numQuestoes?: number)
+    : Observable<GerarAtividadeResponse> {
+    return this.http.post<GerarAtividadeResponse>(
+      `${this.base}/${atividadeId}/revisao`, { alunoId, numQuestoes });
   }
 
   /** Fecha a entrega e dispara o diagnóstico pedagógico em segundo plano. */

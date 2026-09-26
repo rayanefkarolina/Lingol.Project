@@ -1,19 +1,21 @@
-<div class="bg-lingol-bg text-lingol-dark font-sans min-h-screen flex flex-col justify-between">
-  <header class="p-4 flex justify-between items-center max-w-6xl mx-auto w-full">
-    <div class="flex items-center gap-3 cursor-pointer" [routerLink]="auth.ehProfessor() ? '/professor' : '/'">
-      <i class="fa-solid fa-message text-3xl text-lingol-primary"></i>
-      <span class="font-black text-2xl tracking-wider text-lingol-primary">LINGOL</span>
-    </div>
+<div class="text-lingol-ink font-sans min-h-screen overflow-x-hidden flex flex-col justify-between">
+  <header class="px-4 sm:px-8 py-5 flex justify-between items-center gap-4 max-w-[80rem] mx-auto w-full">
+    <a class="flex items-center gap-3 cursor-pointer select-none"
+       [routerLink]="auth.ehProfessor() ? '/professor' : '/'">
+      <img src="img/logo-lingol.png" alt="" aria-hidden="true" class="h-9 sm:h-11 w-auto">
+      <span class="font-black text-2xl sm:text-[2.1rem] leading-none tracking-tight text-lingol-ink">LINGOL</span>
+    </a>
 
     @if (auth.usuario(); as usuario) {
-      <div class="flex items-center gap-3">
-        <div class="text-sm bg-white border-2 border-lingol-dark px-3 py-1 rounded-full shadow-[2px_2px_0px_#1e1b4b]">
-          <span class="font-bold">{{ usuario.nome }}</span>
-          <span class="text-xs text-gray-500 ml-1">{{ usuario.papel }}</span>
+      <div class="flex items-center gap-4 sm:gap-6 bg-white rounded-full pl-5 sm:pl-8 pr-4 sm:pr-6 py-3
+                  shadow-[0_6px_24px_-8px_rgba(15,23,42,0.22)]">
+        <div class="text-right leading-tight min-w-0">
+          <p class="font-bold text-sm sm:text-[1.15rem] text-lingol-ink truncate max-w-[9rem] sm:max-w-none">{{ usuario.nome }}</p>
+          <p class="text-[11px] sm:text-sm uppercase tracking-wide text-slate-500 whitespace-nowrap">{{ usuario.papel }}</p>
         </div>
-        <button (click)="auth.sair()" title="Sair"
-                class="w-9 h-9 rounded-full border-2 border-lingol-dark bg-white hover:bg-red-50 transition-colors">
-          <i class="fa-solid fa-arrow-right-from-bracket text-sm"></i>
+        <button (click)="auth.sair()" title="Sair" aria-label="Sair"
+                class="text-xl sm:text-[1.6rem] text-lingol-ink hover:text-lingol-primary transition-colors">
+          <i class="fa-solid fa-right-from-bracket"></i>
         </button>
       </div>
     }
@@ -23,7 +25,7 @@
     <router-outlet></router-outlet>
   </main>
 
-  <footer class="text-center py-6 text-xs font-bold text-gray-400">
-    Lingol • EdTech de Aprendizagem Imersiva • .NET 9 + Angular 19
+  <footer class="text-center py-7 px-4 text-[0.95rem] font-medium text-slate-500">
+    Lingol · EdTech de Aprendizagem Imersiva · .NET 9 + Angular 19
   </footer>
 </div>

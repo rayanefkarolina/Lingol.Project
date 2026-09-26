@@ -1,38 +1,39 @@
-<main class="flex-1 max-w-6xl mx-auto w-full px-4 py-8 flex items-center animate-fade-in">
-  <div class="grid md:grid-cols-2 gap-8 items-center h-full w-full">
-    
-    <div class="space-y-6 text-center md:text-left">
-      <div class="inline-block p-4 border-2 border-lingol-dark rounded-3xl bg-white shadow-[4px_4px_0px_#1e1b4b]">
-        <i class="fa-solid fa-comments text-5xl text-lingol-primary"></i>
-      </div>
-      
-      <h1 class="text-6xl font-black tracking-tight text-lingol-primary">LINGOL</h1>
-      
-      <p class="text-lg font-medium max-w-md text-gray-700">
-        A plataforma de aprendizagem imersiva que utiliza IA para adaptar o conteúdo e revelar o potencial de cada aluno.
+<section class="vitrine animate-fade-in flex-1 flex items-center">
+
+  <!-- Rede de pontos decorativa do rodapé (apenas enfeite, fica atrás do conteúdo) -->
+  <img src="img/rede-rodape.jpg" alt="" aria-hidden="true"
+       class="hidden lg:block pointer-events-none select-none fixed bottom-0 left-0 -z-10 w-[15rem]">
+
+  <div class="grid w-full items-center gap-10 lg:gap-0 lg:grid-cols-[minmax(0,568fr)_minmax(0,756fr)]">
+
+    <div class="text-center lg:text-left">
+      <img src="img/logo-lingol.png" alt="" aria-hidden="true"
+           class="mx-auto lg:mx-0 w-[9rem] sm:w-[10.5rem]">
+
+      <h1 class="mt-6 text-[clamp(3rem,7.5vw,5.1rem)] font-black leading-[0.95] tracking-[-0.03em] text-lingol-ink">
+        LINGOL
+      </h1>
+
+      <h2 class="mt-5 text-[clamp(1.75rem,3.2vw,2.6rem)] font-extrabold leading-[1.14] tracking-[-0.015em] text-lingol-ink">
+        Aprenda de forma<br class="hidden lg:block"> divertida com o Lingol
+      </h2>
+
+      <p class="mt-6 mx-auto lg:mx-0 max-w-[31.5rem] text-[1.15rem] leading-[1.55] text-slate-600">
+        A plataforma de aprendizagem imersiva que utiliza IA para adaptar o conteúdo
+        e revelar o potencial de cada aluno.
       </p>
-      
-      <div class="flex flex-wrap gap-4 justify-center md:justify-start pt-2">
-        <button routerLink="/login-professor" class="btn-lingol btn-primary">
-          Área do Professor
-        </button>
-        <button routerLink="/login-aluno" class="btn-lingol bg-lingol-cardBlue">
-          Portal do Aluno
-        </button>
+
+      <div class="mt-9 flex flex-wrap gap-4 justify-center lg:justify-start">
+        <a routerLink="/login-professor" class="btn-hero btn-hero-gradiente">Área do Professor</a>
+        <a routerLink="/login-aluno" class="btn-hero btn-hero-escuro">Portal do Aluno</a>
       </div>
     </div>
 
-    <div class="relative flex justify-center">
-      <div class="w-72 h-96 bg-gradient-to-br from-lingol-primary to-lingol-purple rounded-[3rem] border-2 border-lingol-dark shadow-[8px_8px_0px_#1e1b4b] flex flex-col items-center justify-center p-6 text-white text-center relative overflow-hidden">
-        <i class="fa-solid fa-gamepad text-7xl mb-4 drop-shadow-lg"></i>
-        <span class="font-bold text-lg leading-tight">
-          Gamificação &<br>Inclusão (AEE)
-        </span>
-        <span class="text-xs mt-4 opacity-90 font-medium bg-white/20 px-3 py-1 rounded-full">
-          Arquitetura .NET 9 + IA
-        </span>
-      </div>
+    <div>
+      <img src="img/hero-sala-de-aula.jpg"
+           alt="Professora acompanhando alunos em atividades no computador"
+           class="w-full h-auto select-none">
     </div>
 
   </div>
-</main>
+</section>

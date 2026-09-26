@@ -38,6 +38,15 @@ export interface Aluno {
 export type StatusAtividade = 'Pendente' | 'Processando' | 'Pronta' | 'Erro';
 export type ModoGamificacao = 'Simples' | 'Rpg';
 
+/** Entrega ja fechada pelo aluno: o card fica travado. */
+export interface EntregaDaAtividade {
+  concluida: boolean;
+  acertos: number;
+  totalQuestoes: number;
+  nota: number | null;
+  dataEnvio: string;
+}
+
 export interface AtividadeResumo {
   id: string;
   livro: string;
@@ -48,6 +57,9 @@ export interface AtividadeResumo {
   status: StatusAtividade;
   dataCriacao: string;
   numQuestoes: number;
+  ehRevisao: boolean;
+  alunoId: string | null;
+  entrega: EntregaDaAtividade | null;
 }
 
 export interface Atividade extends AtividadeResumo {

@@ -1,49 +1,69 @@
-<section class="max-w-md mx-auto my-auto p-8 bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] w-full mt-10 animate-fade-in">
-  <h2 class="text-2xl font-bold mb-6 text-center text-lingol-primary">
-    {{ modoCadastro() ? 'Criar conta de educador' : 'Acesso do Educador' }}
-  </h2>
+<section class="animate-fade-in flex-1 flex items-center justify-center">
 
-  <div class="space-y-4">
+  <div class="w-full max-w-[30rem] rounded-[1.6rem] bg-white px-8 py-9 sm:px-10
+              shadow-[0_26px_60px_-24px_rgba(15,23,42,0.45)]">
 
-    @if (modoCadastro()) {
-      <div>
-        <label class="text-xs font-bold block mb-1">NOME COMPLETO</label>
-        <input [(ngModel)]="credenciais.nome" placeholder="Ana Ribeiro"
-               class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
-      </div>
-    }
-
-    <div>
-      <label class="text-xs font-bold block mb-1">E-MAIL INSTITUCIONAL</label>
-      <input type="email" [(ngModel)]="credenciais.email" placeholder="professor@escola.com"
-             class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
-    </div>
-
-    <div>
-      <label class="text-xs font-bold block mb-1">SENHA</label>
-      <input type="password" [(ngModel)]="credenciais.senha"
-             [placeholder]="modoCadastro() ? 'Mínimo 8 caracteres' : 'Sua senha'"
-             class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
-    </div>
-
-    @if (mensagemErro()) {
-      <div class="text-red-500 text-xs font-bold text-center">{{ mensagemErro() }}</div>
-    }
-    @if (mensagemSucesso()) {
-      <div class="text-green-600 text-xs font-bold text-center">{{ mensagemSucesso() }}</div>
-    }
-
-    <button (click)="modoCadastro() ? registrar() : fazerLogin()" [disabled]="carregando()"
-            class="btn-lingol btn-primary w-full text-center mt-4">
-      @if (carregando()) {
-        <i class="fa-solid fa-circle-notch animate-spin"></i> Aguarde...
+    <h1 class="text-center text-[clamp(1.6rem,4vw,2rem)] font-black leading-tight tracking-tight text-lingol-ink">
+      @if (modoCadastro()) {
+        Criar conta<br class="hidden sm:block"> do Educador
       } @else {
-        {{ modoCadastro() ? 'Criar conta' : 'Entrar no Sistema' }}
+        Portal de Acesso<br class="hidden sm:block"> do Educador
       }
-    </button>
+    </h1>
+    <p class="mt-3 text-center text-[0.95rem] leading-snug text-slate-500">
+      {{ modoCadastro()
+          ? 'Crie sua conta para montar turmas e gerar atividades.'
+          : 'Entre no sistema para gerenciar suas turmas e atividades.' }}
+    </p>
 
-    <button (click)="alternarModo()" class="w-full text-xs font-bold text-gray-500 hover:text-lingol-primary pt-2">
-      {{ modoCadastro() ? 'Já tenho conta' : 'Não tenho conta ainda' }}
-    </button>
+    <div class="mt-7 space-y-4">
+
+      @if (modoCadastro()) {
+        <div>
+          <label for="nome" class="block text-xs font-bold uppercase tracking-wide text-lingol-ink">Nome completo</label>
+          <input id="nome" [(ngModel)]="credenciais.nome" placeholder="Ana Ribeiro" class="campo-login">
+        </div>
+      }
+
+      <div>
+        <label for="email" class="block text-xs font-bold uppercase tracking-wide text-lingol-ink">E-mail institucional</label>
+        <input id="email" type="email" [(ngModel)]="credenciais.email" placeholder="professor@escola.com"
+               class="campo-login">
+      </div>
+
+      <div>
+        <label for="senha" class="block text-xs font-bold uppercase tracking-wide text-lingol-ink">Senha</label>
+        <input id="senha" type="password" [(ngModel)]="credenciais.senha"
+               (keyup.enter)="modoCadastro() ? registrar() : fazerLogin()"
+               [placeholder]="modoCadastro() ? 'Mínimo 8 caracteres' : 'Sua senha'"
+               class="campo-login">
+      </div>
+
+      @if (mensagemErro()) {
+        <p class="text-center text-sm font-bold text-red-600">{{ mensagemErro() }}</p>
+      }
+      @if (mensagemSucesso()) {
+        <p class="text-center text-sm font-bold text-green-600">{{ mensagemSucesso() }}</p>
+      }
+
+      <button (click)="modoCadastro() ? registrar() : fazerLogin()" [disabled]="carregando()"
+              class="mt-2 w-full rounded-xl bg-[#1b2a6b] py-4 text-[1.05rem] font-bold text-white
+                     transition-all hover:brightness-110 disabled:opacity-70">
+        @if (carregando()) {
+          <i class="fa-solid fa-circle-notch animate-spin"></i> Aguarde...
+        } @else {
+          {{ modoCadastro() ? 'Criar conta' : 'Entrar no Sistema' }}
+        }
+      </button>
+
+      <button (click)="alternarModo()"
+              class="w-full pt-1 text-[0.95rem] font-medium text-slate-500 hover:text-lingol-primary transition-colors">
+        {{ modoCadastro() ? 'Já tenho conta' : 'Não tenho conta ainda' }}
+        <span class="whitespace-nowrap">{{ modoCadastro() ? '(Entrar)' : '(Cadastrar-se)' }}</span>
+      </button>
+    </div>
   </div>
+
+  <!-- Fundo institucional: fixo, atrás de todo o conteúdo -->
+  <app-fundo-lingol />
 </section>

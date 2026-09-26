@@ -7,7 +7,8 @@ module.exports = {
     extend: {
       colors: {
         lingol: {
-          bg: '#f0f8ff',       /* Azul gelo super suave */
+          bg: '#ecf6ff',       /* Azul gelo super suave */
+          ink: '#161a35',      /* Navy dos títulos e do wordmark */
           primary: '#2563eb',  /* Azul vibrante */
           purple: '#8b5cf6',   /* Roxo degradê */
           cardBlue: '#dbeafe', /* Azul claro */

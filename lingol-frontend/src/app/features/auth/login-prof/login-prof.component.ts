@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth.service';
+import { FundoLingolComponent } from '../../../shared/fundo-lingol.component';
 
 @Component({
   selector: 'app-login-prof',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FundoLingolComponent],
   templateUrl: './login-prof.component.html'
 })
 export class LoginProfComponent {

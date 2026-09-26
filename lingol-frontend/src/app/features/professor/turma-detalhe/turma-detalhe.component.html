@@ -41,17 +41,13 @@
 
       @if (mostrarFormulario()) {
         <div class="space-y-3 bg-lingol-bg p-4 rounded-2xl border-2 border-dashed border-gray-300">
-          <div class="grid sm:grid-cols-2 gap-3">
-            <div>
-              <label class="text-xs font-bold block mb-1">NOME COMPLETO</label>
-              <input [(ngModel)]="novoAluno.nome" placeholder="João Silva"
-                     class="w-full p-2 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
-            </div>
-            <div>
-              <label class="text-xs font-bold block mb-1">MATRÍCULA</label>
-              <input [(ngModel)]="novoAluno.matricula" placeholder="2026001"
-                     class="w-full p-2 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
-            </div>
+          <div>
+            <label class="text-xs font-bold block mb-1">NOME COMPLETO</label>
+            <input [(ngModel)]="novoAluno.nome" placeholder="João Silva"
+                   class="w-full p-2 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
+            <p class="text-[11px] text-gray-500 mt-1">
+              A matrícula é gerada automaticamente ao salvar.
+            </p>
           </div>
 
           <div class="grid sm:grid-cols-2 gap-3">
@@ -79,6 +75,14 @@
               Cadastrar aluno
             }
           </button>
+        </div>
+      }
+
+      @if (matriculaGerada()) {
+        <div class="bg-green-50 border-2 border-green-300 rounded-2xl p-3 text-center">
+          <p class="text-xs font-bold text-green-700">Aluno cadastrado! Matrícula gerada:</p>
+          <p class="text-2xl font-black font-mono text-green-800 tracking-wider">{{ matriculaGerada() }}</p>
+          <p class="text-[11px] text-green-700">É com esse número que ele entra na plataforma.</p>
         </div>
       }
 
@@ -138,4 +142,7 @@
     </div>
 
   </div>
+
+  <!-- Fundo institucional: fixo, atrás de todo o conteúdo -->
+  <app-fundo-lingol />
 </section>

@@ -7,11 +7,12 @@ import { AtividadeService, TurmaService } from '../../../core/lingol-api.service
 import { SignalRService } from '../../../core/signalr.service';
 import { Aluno, ModoGamificacao, Turma } from '../../../core/models';
 import { TEMAS } from '../../aluno/jogo/temas';
+import { FundoLingolComponent } from '../../../shared/fundo-lingol.component';
 
 @Component({
   selector: 'app-nova-atividade',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, FundoLingolComponent],
   templateUrl: './nova-atividade.component.html'
 })
 export class NovaAtividadeComponent implements OnDestroy {

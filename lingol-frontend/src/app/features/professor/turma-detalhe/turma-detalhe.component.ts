@@ -6,11 +6,12 @@ import { Subscription } from 'rxjs';
 import { AtividadeService, TurmaService } from '../../../core/lingol-api.service';
 import { SignalRService } from '../../../core/signalr.service';
 import { Aluno, AtividadeResumo, Turma } from '../../../core/models';
+import { FundoLingolComponent } from '../../../shared/fundo-lingol.component';
 
 @Component({
   selector: 'app-turma-detalhe',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, FundoLingolComponent],
   templateUrl: './turma-detalhe.component.html'
 })
 export class TurmaDetalheComponent implements OnDestroy {
@@ -31,7 +32,10 @@ export class TurmaDetalheComponent implements OnDestroy {
 
   mostrarFormulario = signal(false);
   salvando = signal(false);
-  novoAluno = { nome: '', matricula: '', tipoNecessidadeAee: '', observacoesAee: '' };
+
+  /** Mostrado depois do cadastro: é com esse número que o aluno entra. */
+  matriculaGerada = signal('');
+  novoAluno = { nome: '', tipoNecessidadeAee: '', observacoesAee: '' };
 
   readonly perfisAee = ['TDAH', 'TEA', 'Dislexia', 'Deficiência intelectual', 'Outro'];
 
@@ -89,8 +93,8 @@ export class TurmaDetalheComponent implements OnDestroy {
   }
 
   cadastrarAluno(): void {
-    if (!this.novoAluno.nome.trim() || !this.novoAluno.matricula.trim()) {
-      this.mensagemErro.set('Nome e matrícula são obrigatórios.');
+    if (!this.novoAluno.nome.trim()) {
+      this.mensagemErro.set('Informe o nome do aluno.');
       return;
     }
 
@@ -100,21 +104,19 @@ export class TurmaDetalheComponent implements OnDestroy {
     this.turmaService.cadastrarAluno(
       this.turmaId,
       this.novoAluno.nome.trim(),
-      this.novoAluno.matricula.trim(),
       this.novoAluno.tipoNecessidadeAee || undefined,
       this.novoAluno.observacoesAee || undefined
     ).subscribe({
       next: aluno => {
         this.alunos.update(lista => [...lista, aluno]);
-        this.novoAluno = { nome: '', matricula: '', tipoNecessidadeAee: '', observacoesAee: '' };
+        this.novoAluno = { nome: '', tipoNecessidadeAee: '', observacoesAee: '' };
+        this.matriculaGerada.set(aluno.matricula);
         this.mostrarFormulario.set(false);
         this.salvando.set(false);
       },
       error: erro => {
         this.mensagemErro.set(
-          erro.status === 400
-            ? 'Já existe um aluno com essa matrícula nesta turma.'
-            : 'Não foi possível cadastrar o aluno.');
+          erro.error?.erro ?? 'Não foi possível cadastrar o aluno.');
         this.salvando.set(false);
       }
     });

@@ -142,12 +142,32 @@
                       <p class="font-bold text-xs">{{ entrega.assunto }}</p>
                       <span class="text-xs font-black">{{ entrega.acertos }}/{{ entrega.totalQuestoes }}</span>
                     </div>
+
                     @if (entrega.feedbackGeral) {
                       <p class="text-[11px] text-gray-600 mt-1 italic">"{{ entrega.feedbackGeral }}"</p>
                     } @else if (!entrega.diagnosticoPronto) {
                       <p class="text-[11px] text-gray-400 font-bold mt-1">
                         <i class="fa-solid fa-circle-notch animate-spin"></i> Diagnóstico em andamento...
                       </p>
+                    }
+
+                    <!-- Reforço individual para o que ESTE aluno errou -->
+                    @if (entrega.diagnosticoPronto && entrega.erros > 0) {
+                      <div class="mt-3 flex flex-wrap items-center gap-2">
+                        <button (click)="gerarRevisao(entrega, detalhe.alunoId)"
+                                [disabled]="gerandoRevisao()[entrega.respostaAlunoId]"
+                                class="btn-lingol btn-purple text-[11px] py-1 px-4">
+                          @if (gerandoRevisao()[entrega.respostaAlunoId]) {
+                            <i class="fa-solid fa-circle-notch animate-spin"></i> Gerando...
+                          } @else {
+                            <i class="fa-solid fa-rotate-left"></i> Revisão
+                          }
+                        </button>
+
+                        @if (revisaoCriada()[entrega.respostaAlunoId]; as aviso) {
+                          <span class="text-[11px] font-bold text-lingol-purple">{{ aviso }}</span>
+                        }
+                      </div>
                     }
                   </div>
                 }
@@ -160,4 +180,7 @@
     }
 
   }
+
+  <!-- Fundo institucional: fixo, atrás de todo o conteúdo -->
+  <app-fundo-lingol />
 </section>
