@@ -7,7 +7,6 @@ import { SignalRService } from '../../../core/signalr.service';
 import {
   DificuldadePorAluno, EntregaResumo, RelatorioAluno, RelatorioTurma, TipoDificuldade
 } from '../../../core/models';
-import { FundoLingolComponent } from '../../../shared/fundo-lingol.component';
 
 /** O enum chega como string quando configurado, ou índice quando serializado como número. */
 const ROTULOS: Record<string, string> = {
@@ -30,7 +29,7 @@ const ROTULOS: Record<string, string> = {
 @Component({
   selector: 'app-relatorio-turma',
   standalone: true,
-  imports: [CommonModule, RouterModule, FundoLingolComponent],
+  imports: [CommonModule, RouterModule],
   templateUrl: './relatorio-turma.component.html'
 })
 export class RelatorioTurmaComponent implements OnDestroy {

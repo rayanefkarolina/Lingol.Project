@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth.service';
-import { FundoLingolComponent } from '../../../shared/fundo-lingol.component';
 
 @Component({
   selector: 'app-login-aluno',
   standalone: true,
-  imports: [CommonModule, FormsModule, FundoLingolComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login-aluno.component.html'
 })
 export class LoginAlunoComponent {

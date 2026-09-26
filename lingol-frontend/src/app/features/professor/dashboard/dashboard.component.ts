@@ -5,12 +5,11 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/auth.service';
 import { TurmaService } from '../../../core/lingol-api.service';
 import { Turma } from '../../../core/models';
-import { FundoLingolComponent } from '../../../shared/fundo-lingol.component';
 
 @Component({
   selector: 'app-dashboard-professor',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, FundoLingolComponent],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './dashboard.component.html'
 })
 export class DashboardProfessorComponent {

@@ -6,12 +6,11 @@ import { Subscription } from 'rxjs';
 import { AtividadeService, TurmaService } from '../../../core/lingol-api.service';
 import { SignalRService } from '../../../core/signalr.service';
 import { Aluno, AtividadeResumo, Turma } from '../../../core/models';
-import { FundoLingolComponent } from '../../../shared/fundo-lingol.component';
 
 @Component({
   selector: 'app-turma-detalhe',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, FundoLingolComponent],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './turma-detalhe.component.html'
 })
 export class TurmaDetalheComponent implements OnDestroy {

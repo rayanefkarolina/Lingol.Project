@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AtividadeService, RelatorioService } from '../../../core/lingol-api.service';
 import { Atividade, Questao, RelatorioAtividade } from '../../../core/models';
-import { FundoLingolComponent } from '../../../shared/fundo-lingol.component';
 
 @Component({
   selector: 'app-atividade-detalhe',
   standalone: true,
-  imports: [CommonModule, RouterModule, FundoLingolComponent],
+  imports: [CommonModule, RouterModule],
   templateUrl: './atividade-detalhe.component.html'
 })
 export class AtividadeDetalheComponent {

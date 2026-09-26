@@ -1,4 +1,11 @@
 <div class="text-lingol-ink font-sans min-h-screen overflow-x-hidden flex flex-col justify-between">
+
+  @if (mostrarFundo()) {
+    <!-- Fica fora do <main>: dentro dele, a animação de entrada das telas
+         quebraria o posicionamento fixo. -->
+    <app-fundo-lingol />
+  }
+
   <header class="px-4 sm:px-8 py-5 flex justify-between items-center gap-4 max-w-[80rem] mx-auto w-full">
     <a class="flex items-center gap-3 cursor-pointer select-none"
        [routerLink]="auth.ehProfessor() ? '/professor' : '/'">
