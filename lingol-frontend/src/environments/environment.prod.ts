@@ -1,8 +1,8 @@
 export const environment = {
   producao: true,
 
-  // ATENÇÃO: troque pelas URLs das suas APIs publicadas (sem barra no final).
-  // Depois de alterar, refaça o deploy do frontend.
-  cadastroApi: 'https://lingol-cadastro.onrender.com',
-  pedagogicoApi: 'https://lingol-pedagogico.onrender.com'
+  // As duas APIs rodam na mesma VM, atrás do Caddy, que roteia por caminho.
+  // Ver deploy/Caddyfile no repositório do backend.
+  cadastroApi: 'https://lingol-api.duckdns.org/cadastro',
+  pedagogicoApi: 'https://lingol-api.duckdns.org/pedagogico'
 };
