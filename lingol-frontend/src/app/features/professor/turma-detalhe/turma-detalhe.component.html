@@ -10,17 +10,63 @@
       <p class="text-sm font-medium text-gray-600">
         {{ turma()?.materia }} • {{ turma()?.ano }}º ano • {{ alunos().length }} aluno(s)
       </p>
+      @if (turma() && !turma()!.ehProprietario) {
+        <span class="inline-block text-[10px] font-black uppercase tracking-wide bg-purple-100 text-lingol-purple px-2 py-1 rounded-full mt-2">
+          Acesso compartilhado
+        </span>
+      }
     </div>
 
     <div class="flex flex-wrap gap-3">
-      <a [routerLink]="['/professor/turmas', turmaId, 'relatorio']" class="btn-lingol bg-lingol-cardBlue">
+      @if (turma()?.podeEditar) {
+        <button type="button" (click)="editandoTurma.set(!editandoTurma())"
+                class="btn-lingol text-xs">
+          <i class="fa-solid fa-pen"></i> Editar turma
+        </button>
+      }
+      @if (turma()?.ehProprietario) {
+        <a [routerLink]="['/professor/turmas', turmaId, 'permissoes']"
+           class="btn-lingol text-xs">
+          <i class="fa-solid fa-user-shield"></i> Permissões
+        </a>
+      }
+      @if (turma()?.podeVisualizar) {
+        <a [routerLink]="['/professor/turmas', turmaId, 'relatorio']" class="btn-lingol bg-lingol-cardBlue">
         <i class="fa-solid fa-chart-simple"></i> Dashboard
-      </a>
-      <a [routerLink]="['/professor/turmas', turmaId, 'nova-atividade']" class="btn-lingol btn-purple">
-        <i class="fa-solid fa-wand-magic-sparkles"></i> Adaptar atividade
-      </a>
+        </a>
+      }
+      @if (turma()?.podeAdicionar) {
+        <a [routerLink]="['/professor/turmas', turmaId, 'nova-atividade']" class="btn-lingol btn-purple">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Adaptar atividade
+        </a>
+      }
     </div>
   </div>
+
+  @if (editandoTurma() && turma()?.podeEditar) {
+    <form (ngSubmit)="atualizarTurma()"
+          class="bg-white border-2 border-lingol-dark rounded-2xl p-4 grid sm:grid-cols-3 gap-3">
+      <label class="text-xs font-bold">NOME
+        <input name="nomeTurma" [(ngModel)]="dadosTurma.nome"
+               class="w-full mt-1 p-2 border-2 border-gray-300 rounded-xl">
+      </label>
+      <label class="text-xs font-bold">MATÉRIA
+        <input name="materiaTurma" [(ngModel)]="dadosTurma.materia"
+               class="w-full mt-1 p-2 border-2 border-gray-300 rounded-xl">
+      </label>
+      <label class="text-xs font-bold">ANO
+        <select name="anoTurma" [(ngModel)]="dadosTurma.ano"
+                class="w-full mt-1 p-2 border-2 border-gray-300 rounded-xl bg-white">
+          @for (ano of [1,2,3,4,5,6,7,8,9]; track ano) {
+            <option [ngValue]="ano">{{ ano }}º ano</option>
+          }
+        </select>
+      </label>
+      <button type="submit" [disabled]="salvando()" class="btn-lingol btn-primary sm:col-span-3">
+        {{ salvando() ? 'Salvando...' : 'Salvar dados da turma' }}
+      </button>
+    </form>
+  }
 
   @if (mensagemErro()) {
     <div class="bg-red-50 border-2 border-red-300 text-red-700 rounded-2xl p-3 text-sm font-bold">
@@ -34,12 +80,14 @@
     <div class="bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] p-6 space-y-4">
       <div class="flex items-center justify-between">
         <h2 class="font-black text-lg"><i class="fa-solid fa-users text-lingol-primary"></i> Alunos</h2>
-        <button (click)="mostrarFormulario.set(!mostrarFormulario())" class="btn-lingol text-xs py-1">
-          {{ mostrarFormulario() ? 'Cancelar' : '+ Aluno' }}
-        </button>
+        @if (turma()?.podeAdicionar) {
+          <button (click)="mostrarFormulario.set(!mostrarFormulario())" class="btn-lingol text-xs py-1">
+            {{ mostrarFormulario() ? 'Cancelar' : '+ Aluno' }}
+          </button>
+        }
       </div>
 
-      @if (mostrarFormulario()) {
+      @if (mostrarFormulario() && turma()?.podeAdicionar) {
         <div class="space-y-3 bg-lingol-bg p-4 rounded-2xl border-2 border-dashed border-gray-300">
           <div>
             <label class="text-xs font-bold block mb-1">NOME COMPLETO</label>
@@ -103,6 +151,16 @@
                   AEE: {{ aluno.tipoNecessidade }}
                 </span>
               }
+              @if (turma()?.podeExcluir) {
+                <button type="button" (click)="excluirAluno(aluno)"
+                        [disabled]="excluindoAluno() === aluno.id"
+                        [attr.aria-label]="'Excluir ' + aluno.nome"
+                        class="shrink-0 text-red-600 hover:text-red-800 disabled:opacity-50">
+                  <i class="fa-solid" [class.fa-trash]="excluindoAluno() !== aluno.id"
+                     [class.fa-circle-notch]="excluindoAluno() === aluno.id"
+                     [class.animate-spin]="excluindoAluno() === aluno.id"></i>
+                </button>
+              }
             </li>
           }
         </ul>
@@ -134,7 +192,41 @@
                   {{ atividade.livro }} • {{ atividade.numQuestoes }} questões •
                   {{ atividade.modo === 'Rpg' ? 'Gamificada' : 'Questionário' }}
                 </p>
+                @if (atividade.ehRevisao && atividade.atividadeOrigemAssunto) {
+                  <p class="text-[11px] font-bold text-lingol-purple mt-1">
+                    Revisão vinculada a: {{ atividade.atividadeOrigemAssunto }}
+                  </p>
+                }
               </a>
+              @if (alunos().length > 0 && turma()?.podeEditar) {
+                <details class="mt-2 border border-gray-200 rounded-xl px-3 py-2">
+                  <summary class="cursor-pointer text-[11px] font-bold text-gray-600">
+                    Acesso por aluno
+                  </summary>
+                  <ul class="mt-2 space-y-2">
+                    @for (aluno of alunos(); track aluno.id) {
+                      <li class="flex items-center justify-between gap-2 text-xs">
+                        <span class="truncate">{{ aluno.nome }}</span>
+                        <button type="button"
+                                (click)="definirVisibilidade(atividade, aluno)"
+                                [disabled]="atualizandoVisibilidade()[atividade.id + ':' + aluno.id]"
+                                class="shrink-0 rounded-lg px-2 py-1 font-bold disabled:opacity-50"
+                                [class]="(atividade.alunosOcultos ?? []).includes(aluno.id)
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-red-50 text-red-700'">
+                          @if (atualizandoVisibilidade()[atividade.id + ':' + aluno.id]) {
+                            Atualizando...
+                          } @else if ((atividade.alunosOcultos ?? []).includes(aluno.id)) {
+                            Reexibir
+                          } @else {
+                            Ocultar
+                          }
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                </details>
+              }
             </li>
           }
         </ul>

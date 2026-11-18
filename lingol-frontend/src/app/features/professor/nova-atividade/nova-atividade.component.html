@@ -4,7 +4,7 @@
     <i class="fa-solid fa-arrow-left"></i> {{ turma()?.nome }}
   </a>
 
-  @if (!atividadeId()) {
+  @if (!atividadeId() && turma()?.podeAdicionar) {
 
     <div class="bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] p-6 space-y-5">
       <div>
@@ -40,6 +40,11 @@
         <input type="number" min="1" [max]="form.modo === 'Rpg' ? maxQuestoesGamificada : 20"
                [(ngModel)]="form.numQuestoes"
                class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm focus:outline-none focus:border-lingol-primary">
+        @if (!form.numQuestoes || form.numQuestoes < 1) {
+          <p class="text-xs font-bold text-red-600 mt-1">
+            Não é possível gerar 0 questões. Informe pelo menos 1 questão.
+          </p>
+        }
         <p class="text-[11px] text-gray-500 mt-1">
           Deixe 10 se não quiser escolher.
           @if (form.modo === 'Rpg') {
@@ -114,7 +119,7 @@
       </button>
     </div>
 
-  } @else {
+  } @else if (atividadeId()) {
 
     <!-- Depois do 202: a tela não trava, só aguarda o SignalR -->
     <div class="bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] p-8 text-center space-y-4">
@@ -153,6 +158,10 @@
         }
       }
 
+    </div>
+  } @else if (turma() && !turma()!.podeAdicionar) {
+    <div class="bg-amber-50 border-2 border-amber-300 text-amber-800 rounded-2xl p-4 font-bold">
+      {{ mensagemErro() }}
     </div>
   }
 </section>

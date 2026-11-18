@@ -21,6 +21,18 @@ export const routes: Routes = [
             .then(m => m.DashboardProfessorComponent)
       },
       {
+        path: 'preparatorios',
+        loadComponent: () =>
+          import('./features/professor/preparatorios/preparatorios.component')
+            .then(m => m.PreparatoriosComponent)
+      },
+      {
+        path: 'turmas/:turmaId/permissoes',
+        loadComponent: () =>
+          import('./features/professor/permissoes-turma/permissoes-turma.component')
+            .then(m => m.PermissoesTurmaComponent)
+      },
+      {
         path: 'turmas/:turmaId',
         loadComponent: () =>
           import('./features/professor/turma-detalhe/turma-detalhe.component')

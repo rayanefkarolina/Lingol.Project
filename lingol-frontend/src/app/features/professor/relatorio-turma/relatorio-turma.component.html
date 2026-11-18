@@ -123,6 +123,81 @@
           @if (alunoSelecionado()?.alunoId === aluno.alunoId) {
             <div class="border-t-2 border-gray-100 p-4 bg-lingol-bg space-y-3">
               @if (alunoSelecionado(); as detalhe) {
+                @if (desempenhoPorCategoria(detalhe.entregas, false).length > 0
+                  || desempenhoPorCategoria(detalhe.entregas, true).length > 0) {
+                  <div class="bg-white border-2 border-gray-200 rounded-2xl p-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                      <p class="text-xs font-black text-gray-500 uppercase">Evolução das notas</p>
+                      <button type="button" (click)="graficoExpandido.set(true)"
+                              class="text-xs font-black text-lingol-primary hover:underline">
+                        <i class="fa-solid fa-expand mr-1"></i> Expandir gráfico
+                      </button>
+                    </div>
+                    @if (desempenhoPorCategoria(detalhe.entregas, true).length > 0) {
+                      <p class="text-[11px] font-black uppercase tracking-wide text-lingol-purple mb-2">
+                        Preparatórios — por matéria
+                      </p>
+                      <div class="space-y-3 mb-4">
+                        @for (grupo of desempenhoPorCategoria(detalhe.entregas, true); track grupo.categoria) {
+                          <div>
+                            <div class="flex items-center justify-between gap-3 text-xs font-bold mb-1">
+                              <span class="truncate">{{ grupo.categoria }}</span>
+                              <span class="whitespace-nowrap" [class]="corDaNota(grupo.notaMedia)">
+                                Média {{ grupo.notaMedia | number:'1.1-2' }}/10
+                              </span>
+                            </div>
+                            <svg viewBox="0 0 100 100" role="img"
+                                 [attr.aria-label]="'Evolução de ' + grupo.categoria + ' nos preparatórios'"
+                                 class="w-full h-12 overflow-visible">
+                              <line x1="0" y1="0" x2="100" y2="0" stroke="#e5e7eb" stroke-width="1" />
+                              <line x1="0" y1="50" x2="100" y2="50" stroke="#e5e7eb" stroke-width="1" />
+                              <line x1="0" y1="100" x2="100" y2="100" stroke="#e5e7eb" stroke-width="1" />
+                              <polyline [attr.points]="grupo.pontosSvg" fill="none" stroke="#7c3aed"
+                                        stroke-width="2.5" vector-effect="non-scaling-stroke" />
+                              @for (ponto of grupo.pontos; track ponto.entrega.respostaAlunoId) {
+                                <circle [attr.cx]="ponto.x" [attr.cy]="ponto.y" r="2.5" fill="#7c3aed">
+                                  <title>{{ ponto.entrega.dataEnvio | date:'shortDate' }} — nota {{ ponto.entrega.nota }}</title>
+                                </circle>
+                              }
+                            </svg>
+                          </div>
+                        }
+                      </div>
+                    }
+                    @if (desempenhoPorCategoria(detalhe.entregas, false).length > 0) {
+                      <p class="text-[11px] font-black uppercase tracking-wide text-lingol-primary mb-2">
+                        Outras atividades — por assunto
+                      </p>
+                      <div class="space-y-3">
+                        @for (grupo of desempenhoPorCategoria(detalhe.entregas, false); track grupo.categoria) {
+                          <div>
+                            <div class="flex items-center justify-between gap-3 text-xs font-bold mb-1">
+                              <span class="truncate">{{ grupo.categoria }}</span>
+                              <span class="whitespace-nowrap" [class]="corDaNota(grupo.notaMedia)">
+                                Média {{ grupo.notaMedia | number:'1.1-2' }}/10
+                              </span>
+                            </div>
+                            <svg viewBox="0 0 100 100" role="img"
+                                 [attr.aria-label]="'Evolução de ' + grupo.categoria"
+                                 class="w-full h-12 overflow-visible">
+                              <line x1="0" y1="0" x2="100" y2="0" stroke="#e5e7eb" stroke-width="1" />
+                              <line x1="0" y1="50" x2="100" y2="50" stroke="#e5e7eb" stroke-width="1" />
+                              <line x1="0" y1="100" x2="100" y2="100" stroke="#e5e7eb" stroke-width="1" />
+                              <polyline [attr.points]="grupo.pontosSvg" fill="none" stroke="#2563eb"
+                                        stroke-width="2.5" vector-effect="non-scaling-stroke" />
+                              @for (ponto of grupo.pontos; track ponto.entrega.respostaAlunoId) {
+                                <circle [attr.cx]="ponto.x" [attr.cy]="ponto.y" r="2.5" fill="#2563eb">
+                                  <title>{{ ponto.entrega.dataEnvio | date:'shortDate' }} — nota {{ ponto.entrega.nota }}</title>
+                                </circle>
+                              }
+                            </svg>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+
                 @if (detalhe.dificuldades.length > 0) {
                   <div>
                     <p class="text-xs font-black text-gray-500 uppercase mb-1">Dificuldades</p>
@@ -142,6 +217,9 @@
                       <p class="font-bold text-xs">{{ entrega.assunto }}</p>
                       <span class="text-xs font-black">{{ entrega.acertos }}/{{ entrega.totalQuestoes }}</span>
                     </div>
+                    <p class="text-[10px] text-gray-500 mt-1">
+                      Realizada em {{ entrega.dataEnvio | date:'shortDate' }}
+                    </p>
 
                     @if (entrega.feedbackGeral) {
                       <p class="text-[11px] text-gray-600 mt-1 italic">"{{ entrega.feedbackGeral }}"</p>
@@ -181,3 +259,137 @@
 
   }
 </section>
+
+@if (graficoExpandido() && alunoSelecionado(); as detalhe) {
+  <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+       (click)="graficoExpandido.set(false)"
+       (keydown.escape)="graficoExpandido.set(false)">
+    <section class="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl border-2 border-lingol-dark shadow-2xl p-6 space-y-5"
+             role="dialog"
+             aria-modal="true"
+             [attr.aria-label]="'Notas de ' + detalhe.nomeAluno"
+             (click)="$event.stopPropagation()">
+      <header class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-black text-lingol-primary">Notas de {{ detalhe.nomeAluno }}</h2>
+          <p class="text-sm text-gray-500">Notas e datas das atividades realizadas por este aluno.</p>
+        </div>
+        <button type="button" (click)="graficoExpandido.set(false)"
+                aria-label="Fechar gráfico expandido"
+                class="text-gray-500 hover:text-gray-800 text-xl">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+
+      @if (desempenhoPorCategoria(detalhe.entregas, true).length > 0) {
+        <section class="space-y-3">
+          <h3 class="font-black text-lingol-purple">Preparatórios — evolução por matéria</h3>
+          @for (grupo of desempenhoPorCategoria(detalhe.entregas, true); track grupo.categoria) {
+            <article class="border-2 border-purple-200 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between gap-3">
+                <h4 class="font-black text-gray-800">{{ grupo.categoria }}</h4>
+                <span class="text-lg font-black" [class]="corDaNota(grupo.notaMedia)">
+                  Média {{ grupo.notaMedia | number:'1.1-2' }}/10
+                </span>
+              </div>
+              <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full rounded-full bg-lingol-purple"
+                     [style.width.%]="grupo.notaMedia * 10"></div>
+              </div>
+              <svg viewBox="0 0 100 100" role="img"
+                   [attr.aria-label]="'Evolução das notas de ' + grupo.categoria + ' nos preparatórios'"
+                   class="w-full h-48 overflow-visible">
+                <line x1="0" y1="0" x2="100" y2="0" stroke="#e5e7eb" stroke-width="1" />
+                <line x1="0" y1="50" x2="100" y2="50" stroke="#e5e7eb" stroke-width="1" />
+                <line x1="0" y1="100" x2="100" y2="100" stroke="#e5e7eb" stroke-width="1" />
+                <polyline [attr.points]="grupo.pontosSvg" fill="none" stroke="#7c3aed"
+                          stroke-width="2.5" vector-effect="non-scaling-stroke" />
+                @for (ponto of grupo.pontos; track ponto.entrega.respostaAlunoId) {
+                  <circle [attr.cx]="ponto.x" [attr.cy]="ponto.y" r="3" fill="#7c3aed">
+                    <title>{{ ponto.entrega.dataEnvio | date:'shortDate' }} — nota {{ ponto.entrega.nota }}</title>
+                  </circle>
+                }
+              </svg>
+              <p class="text-[11px] font-bold text-gray-500">
+                Média de {{ grupo.entregas.length }}
+                {{ grupo.entregas.length === 1 ? 'atividade' : 'atividades' }}
+              </p>
+              <div class="divide-y divide-gray-100">
+                @for (entrega of grupo.entregas; track entrega.respostaAlunoId) {
+                  <div class="py-2 flex flex-wrap items-center justify-between gap-2 text-sm">
+                    <div>
+                      <p class="font-bold text-gray-700">{{ entrega.assunto }}</p>
+                      <p class="text-xs text-gray-500">
+                        {{ entrega.dataEnvio | date:'shortDate' }} •
+                        {{ entrega.acertos }}/{{ entrega.totalQuestoes }} acertos
+                      </p>
+                    </div>
+                    <span class="font-black" [class]="corDaNota(entrega.nota)">
+                      Nota {{ entrega.nota | number:'1.1-2' }}/10
+                    </span>
+                  </div>
+                }
+              </div>
+            </article>
+          }
+        </section>
+      }
+
+      @if (desempenhoPorCategoria(detalhe.entregas, false).length > 0) {
+        <section class="space-y-3">
+          <h3 class="font-black text-lingol-primary">Outras atividades — evolução por assunto</h3>
+          @for (grupo of desempenhoPorCategoria(detalhe.entregas, false); track grupo.categoria) {
+            <article class="border-2 border-gray-200 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between gap-3">
+                <h4 class="font-black text-gray-800">{{ grupo.categoria }}</h4>
+                <span class="text-lg font-black" [class]="corDaNota(grupo.notaMedia)">
+                  Média {{ grupo.notaMedia | number:'1.1-2' }}/10
+                </span>
+              </div>
+              <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full rounded-full bg-lingol-primary"
+                     [style.width.%]="grupo.notaMedia * 10"></div>
+              </div>
+              <svg viewBox="0 0 100 100" role="img"
+                   [attr.aria-label]="'Evolução das notas de ' + grupo.categoria"
+                   class="w-full h-48 overflow-visible">
+                <line x1="0" y1="0" x2="100" y2="0" stroke="#e5e7eb" stroke-width="1" />
+                <line x1="0" y1="50" x2="100" y2="50" stroke="#e5e7eb" stroke-width="1" />
+                <line x1="0" y1="100" x2="100" y2="100" stroke="#e5e7eb" stroke-width="1" />
+                <polyline [attr.points]="grupo.pontosSvg" fill="none" stroke="#2563eb"
+                          stroke-width="2.5" vector-effect="non-scaling-stroke" />
+                @for (ponto of grupo.pontos; track ponto.entrega.respostaAlunoId) {
+                  <circle [attr.cx]="ponto.x" [attr.cy]="ponto.y" r="3" fill="#2563eb">
+                    <title>{{ ponto.entrega.dataEnvio | date:'shortDate' }} — nota {{ ponto.entrega.nota }}</title>
+                  </circle>
+                }
+              </svg>
+              <p class="text-[11px] font-bold text-gray-500">
+                Média de {{ grupo.entregas.length }}
+                {{ grupo.entregas.length === 1 ? 'atividade' : 'atividades' }}
+              </p>
+              <div class="divide-y divide-gray-100">
+                @for (entrega of grupo.entregas; track entrega.respostaAlunoId) {
+                  <div class="py-2 flex flex-wrap items-center justify-between gap-2 text-sm">
+                    <div>
+                      <p class="font-bold text-gray-700">{{ entrega.dataEnvio | date:'shortDate' }}</p>
+                      <p class="text-xs text-gray-500">{{ entrega.acertos }}/{{ entrega.totalQuestoes }} acertos</p>
+                    </div>
+                    <span class="font-black" [class]="corDaNota(entrega.nota)">
+                      Nota {{ entrega.nota | number:'1.1-2' }}/10
+                    </span>
+                  </div>
+                }
+              </div>
+            </article>
+          }
+        </section>
+      }
+
+      <button type="button" (click)="graficoExpandido.set(false)"
+              class="btn-lingol btn-primary w-full">
+        Fechar gráfico
+      </button>
+    </section>
+  </div>
+}

@@ -31,9 +31,13 @@ export class TurmaDetalheComponent implements OnDestroy {
 
   mostrarFormulario = signal(false);
   salvando = signal(false);
+  excluindoAluno = signal<string | null>(null);
+  editandoTurma = signal(false);
+  atualizandoVisibilidade = signal<Record<string, boolean>>({});
 
   /** Mostrado depois do cadastro: é com esse número que o aluno entra. */
   matriculaGerada = signal('');
+  dadosTurma = { nome: '', materia: '', ano: 6 };
   novoAluno = { nome: '', tipoNecessidadeAee: '', observacoesAee: '' };
 
   readonly perfisAee = ['TDAH', 'TEA', 'Dislexia', 'Deficiência intelectual', 'Outro'];
@@ -66,7 +70,10 @@ export class TurmaDetalheComponent implements OnDestroy {
     this.carregando.set(true);
 
     this.turmaService.obter(this.turmaId).subscribe({
-      next: t => this.turma.set(t),
+      next: t => {
+        this.turma.set(t);
+        this.dadosTurma = { nome: t.nome, materia: t.materia, ano: t.ano };
+      },
       error: () => this.mensagemErro.set('Turma não encontrada.')
     });
 
@@ -84,10 +91,78 @@ export class TurmaDetalheComponent implements OnDestroy {
     this.carregarAtividades();
   }
 
+  atualizarTurma(): void {
+    if (!this.turma()?.podeEditar || !this.dadosTurma.nome.trim() || !this.dadosTurma.materia.trim()) {
+      this.mensagemErro.set('Informe nome e matéria para atualizar a turma.');
+      return;
+    }
+
+    this.salvando.set(true);
+    this.turmaService.atualizarTurma(this.turmaId, {
+      nome: this.dadosTurma.nome.trim(),
+      materia: this.dadosTurma.materia.trim(),
+      ano: this.dadosTurma.ano
+    }).subscribe({
+      next: turma => {
+        this.turma.set(turma);
+        this.editandoTurma.set(false);
+        this.salvando.set(false);
+      },
+      error: erro => {
+        this.mensagemErro.set(erro.error?.erro ?? 'Não foi possível editar os dados da turma.');
+        this.salvando.set(false);
+      }
+    });
+  }
+
+  excluirAluno(aluno: Aluno): void {
+    if (!this.turma()?.podeExcluir || this.excluindoAluno()) return;
+    if (!window.confirm(
+      `Remover ${aluno.nome} da turma? As respostas anteriores serão mantidas no histórico.`)) return;
+
+    this.excluindoAluno.set(aluno.id);
+    this.turmaService.excluirAluno(this.turmaId, aluno.id).subscribe({
+      next: () => {
+        this.alunos.update(lista => lista.filter(item => item.id !== aluno.id));
+        this.excluindoAluno.set(null);
+      },
+      error: erro => {
+        this.mensagemErro.set(erro.error?.erro ?? 'Não foi possível excluir o aluno.');
+        this.excluindoAluno.set(null);
+      }
+    });
+  }
+
   carregarAtividades(): void {
     this.atividadeService.listarPorTurma(this.turmaId).subscribe({
       next: a => this.atividades.set(a),
       error: () => { /* a lista de atividades é secundária nesta tela */ }
+    });
+  }
+
+  definirVisibilidade(atividade: AtividadeResumo, aluno: Aluno): void {
+    const ocultos = atividade.alunosOcultos ?? [];
+    const visivel = ocultos.includes(aluno.id);
+    const chave = `${atividade.id}:${aluno.id}`;
+    if (this.atualizandoVisibilidade()[chave]) return;
+
+    this.atualizandoVisibilidade.update(atualizando => ({ ...atualizando, [chave]: true }));
+    this.atividadeService.definirVisibilidadeParaAluno(atividade.id, aluno.id, visivel).subscribe({
+      next: () => {
+        this.atividades.update(lista => lista.map(item => item.id !== atividade.id
+          ? item
+          : {
+              ...item,
+              alunosOcultos: visivel
+                ? (item.alunosOcultos ?? []).filter(id => id !== aluno.id)
+                : [...(item.alunosOcultos ?? []), aluno.id]
+            }));
+        this.atualizandoVisibilidade.update(atualizando => ({ ...atualizando, [chave]: false }));
+      },
+      error: erro => {
+        this.mensagemErro.set(erro.error?.erro ?? 'Não foi possível atualizar o acesso do aluno.');
+        this.atualizandoVisibilidade.update(atualizando => ({ ...atualizando, [chave]: false }));
+      }
     });
   }
 

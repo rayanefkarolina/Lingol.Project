@@ -28,6 +28,19 @@
     }
   </header>
 
+  @if (auth.ehProfessor()) {
+    <nav class="max-w-6xl mx-auto w-full px-4 -mt-2 flex gap-3" aria-label="Área do professor">
+      <a routerLink="/professor" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="bg-lingol-primary text-white"
+         class="rounded-full px-5 py-2 text-sm font-bold text-lingol-ink hover:bg-white/80 transition-colors">
+        <i class="fa-solid fa-users"></i> Minhas turmas
+      </a>
+      <a routerLink="/professor/preparatorios" routerLinkActive="bg-lingol-primary text-white"
+         class="rounded-full px-5 py-2 text-sm font-bold text-lingol-ink hover:bg-white/80 transition-colors">
+        <i class="fa-solid fa-file-circle-check"></i> Preparatórios
+      </a>
+    </nav>
+  }
+
   <main class="flex-1 max-w-6xl mx-auto w-full px-4 py-8 flex flex-col">
     <router-outlet></router-outlet>
   </main>

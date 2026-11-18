@@ -83,9 +83,15 @@ são descartados ao carregar a página.
 
 Cada resposta é enviada na hora (`POST /respostas/questao`) e devolve se acertou
 mais a explicação da regra — é o que alimenta o modal de item ganho/perdido.
-O backend aceita **uma tentativa por questão**, então não dá para ficar chutando.
+O backend aceita **uma resposta por questão**; reenvios após falha de rede são
+idempotentes. Se o aluno sair ou perder a conexão, a atividade abre na próxima
+questão ainda não respondida. A entrega concluída também é restaurada ao reabrir.
 Ao responder a última, o app chama `POST /finalizar`, que consolida o placar e
 dispara o diagnóstico pedagógico.
+
+Na lista de atividades da turma, o professor pode ocultar ou reexibir uma
+atividade para um aluno específico. Essa ação não apaga as respostas nem o
+histórico de desempenho.
 
 ## Temas do jogo
 

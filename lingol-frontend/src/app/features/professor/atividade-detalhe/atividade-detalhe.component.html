@@ -12,10 +12,26 @@
           {{ a.livro }} • {{ a.modo === 'Rpg' ? 'Atividade gamificada' : 'Questionário simples' }}
         </p>
       </div>
-      <button (click)="carregar()" class="btn-lingol text-xs py-1">
-        <i class="fa-solid fa-rotate-right"></i> Atualizar
-      </button>
+      <div class="flex gap-2">
+        <button (click)="carregar()" class="btn-lingol text-xs py-1">
+          <i class="fa-solid fa-rotate-right"></i> Atualizar
+        </button>
+        @if (turma()?.podeExcluir) {
+        <button (click)="excluir()" [disabled]="excluindo()"
+                class="btn-lingol text-xs py-1 bg-red-100 text-red-700 border-red-300 disabled:opacity-60">
+          @if (excluindo()) {
+            <i class="fa-solid fa-circle-notch animate-spin"></i> Excluindo...
+          } @else {
+            <i class="fa-solid fa-trash"></i> Excluir atividade
+          }
+        </button>
+        }
+      </div>
     </div>
+
+    @if (mensagemErro()) {
+      <p class="text-sm font-bold text-red-600">{{ mensagemErro() }}</p>
+    }
 
     @switch (a.status) {
       @case ('Erro') {

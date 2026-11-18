@@ -4,7 +4,8 @@ import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   Aluno, Atividade, AtividadeResumo, FinalizarAtividadeResponse, GerarAtividadeRequest,
-  GerarAtividadeResponse, Questao, RelatorioAluno, RelatorioAtividade, RelatorioTurma,
+  DefinirPermissaoProfessorTurma, GerarAtividadeResponse, PermissaoProfessorTurma,
+  ProgressoAtividadeResponse, Questao, RelatorioAluno, RelatorioAtividade, RelatorioTurma,
   ResponderQuestaoResponse, Turma
 } from './models';
 
@@ -16,6 +17,24 @@ export class TurmaService {
 
   listar(): Observable<Turma[]> {
     return this.http.get<Turma[]>(`${this.base}/turmas`);
+  }
+
+  listarPermissoes(turmaId: string): Observable<PermissaoProfessorTurma[]> {
+    return this.http.get<PermissaoProfessorTurma[]>(`${this.base}/turmas/${turmaId}/permissoes`);
+  }
+
+  salvarPermissao(turmaId: string, permissao: DefinirPermissaoProfessorTurma)
+    : Observable<PermissaoProfessorTurma> {
+    return this.http.post<PermissaoProfessorTurma>(
+      `${this.base}/turmas/${turmaId}/permissoes`, permissao);
+  }
+
+  revogarPermissao(turmaId: string, professorId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/turmas/${turmaId}/permissoes/${professorId}`);
+  }
+
+  atualizarTurma(turmaId: string, turma: Pick<Turma, 'nome' | 'materia' | 'ano'>): Observable<Turma> {
+    return this.http.put<Turma>(`${this.base}/turmas/${turmaId}`, turma);
   }
 
   obter(turmaId: string): Observable<Turma> {
@@ -42,6 +61,10 @@ export class TurmaService {
     });
   }
 
+  excluirAluno(turmaId: string, alunoId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/turmas/${turmaId}/alunos/${alunoId}`);
+  }
+
   /** Turma do aluno logado. */
   minhasTurmas(): Observable<Turma[]> {
     return this.http.get<Turma[]>(`${this.base}/turmas/minhas`);
@@ -59,12 +82,26 @@ export class AtividadeService {
     return this.http.post<GerarAtividadeResponse>(`${this.base}/gerar`, request);
   }
 
+  gerarPreparatorio(formulario: FormData): Observable<GerarAtividadeResponse> {
+    return this.http.post<GerarAtividadeResponse>(`${this.base}/preparatorios`, formulario);
+  }
+
   listarPorTurma(turmaId: string): Observable<AtividadeResumo[]> {
     return this.http.get<AtividadeResumo[]>(`${this.base}/turmas/${turmaId}`);
   }
 
   obter(atividadeId: string): Observable<Atividade> {
     return this.http.get<Atividade>(`${this.base}/${atividadeId}`);
+  }
+
+  excluir(atividadeId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${atividadeId}`);
+  }
+
+  definirVisibilidadeParaAluno(atividadeId: string, alunoId: string, visivel: boolean): Observable<void> {
+    return this.http.put<void>(
+      `${this.base}/${atividadeId}/alunos/${alunoId}/visibilidade`,
+      { visivel });
   }
 
   obterQuestoes(atividadeId: string): Observable<Questao[]> {
@@ -75,6 +112,10 @@ export class AtividadeService {
         // remover aqui evita o "A) A) gato" na tela.
         alternativas: q.alternativas.map(a => a.replace(/^\s*[A-Da-d]\s*[\)\.\-]\s*/, ''))
       }))));
+  }
+
+  progresso(atividadeId: string): Observable<ProgressoAtividadeResponse> {
+    return this.http.get<ProgressoAtividadeResponse>(`${this.base}/${atividadeId}/progresso`);
   }
 
   /**

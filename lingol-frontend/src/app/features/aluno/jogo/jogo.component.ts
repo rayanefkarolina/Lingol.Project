@@ -38,6 +38,7 @@ export class JogoComponent {
   indiceAtual = signal(0);
   acertos = signal(0);
   respondendo = signal(false);
+  textoLido = signal(false);
 
   /** Índice da alternativa escolhida e a correta, para pintar os botões. */
   escolhida = signal<number | null>(null);
@@ -50,7 +51,14 @@ export class JogoComponent {
 
   readonly totalFases = computed(() => this.questoes().length);
   readonly questaoAtual = computed(() => this.questoes()[this.indiceAtual()] ?? null);
+  readonly textoBase = computed(() => this.questaoAtual()?.textoBase?.trim() ?? '');
   readonly ehUltimaFase = computed(() => this.indiceAtual() >= this.totalFases() - 1);
+  readonly ehPreparatorio = computed(() =>
+    this.atividade()?.ehPreparatorio ?? this.atividade()?.livro.startsWith('Preparatório: ') ?? false);
+  readonly nomeProva = computed(() =>
+    this.atividade()?.tipoProva
+      ?? this.atividade()?.livro.replace(/^Preparatório:\s*/, '')
+      ?? '');
 
   /** Um slot de item por questão — o tabuleiro encolhe junto com a atividade. */
   readonly slots = computed(() =>
@@ -84,13 +92,48 @@ export class JogoComponent {
         this.atividadeService.obterQuestoes(this.atividadeId).subscribe({
           next: questoes => {
             this.questoes.set(questoes);
-            this.etapa.set(questoes.length ? 'intro' : 'erro');
-            if (!questoes.length) this.mensagemErro.set('Esta atividade não tem questões.');
+            if (!questoes.length) {
+              this.falhar('Esta atividade não tem questões.');
+              return;
+            }
+
+            this.restaurarProgresso(questoes);
           },
           error: () => this.falhar('Não foi possível carregar as questões.')
         });
       },
       error: () => this.falhar('Atividade não encontrada.')
+    });
+  }
+
+  private restaurarProgresso(questoes: Questao[]): void {
+    this.atividadeService.progresso(this.atividadeId).subscribe({
+      next: progresso => {
+        this.acertos.set(progresso.acertos);
+
+        if (progresso.finalizada) {
+          this.resultadoFinal.set({
+            acertos: progresso.acertos,
+            total: progresso.totalQuestoes,
+            mensagem: `Você acertou ${progresso.acertos}/${progresso.totalQuestoes} questões!`
+          });
+          this.etapa.set('fim');
+          return;
+        }
+
+        const respondidas = new Set(progresso.respostas.map(r => r.questaoId));
+        const proximaQuestao = questoes.findIndex(q => !respondidas.has(q.id));
+
+        if (proximaQuestao < 0) {
+          this.finalizar();
+          return;
+        }
+
+        this.indiceAtual.set(proximaQuestao);
+        this.iniciadoEm = Date.now();
+        this.etapa.set(progresso.respostas.length ? 'questao' : 'intro');
+      },
+      error: () => this.falhar('Não foi possível recuperar seu progresso. Tente voltar para a atividade.')
     });
   }
 
@@ -111,6 +154,7 @@ export class JogoComponent {
 
   responder(indice: number): void {
     if (this.respondendo() || this.escolhida() !== null) return;
+    if (this.textoBase() && !this.textoLido()) return;
 
     const questao = this.questaoAtual();
     if (!questao) return;
@@ -166,6 +210,7 @@ export class JogoComponent {
 
   proximaFase(): void {
     this.indiceAtual.update(i => i + 1);
+    this.textoLido.set(false);
     this.iniciadoEm = Date.now();
     this.etapa.set('questao');
   }

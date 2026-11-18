@@ -4,7 +4,7 @@
     <div>
       <h1 class="text-3xl font-black text-lingol-primary">Minhas turmas</h1>
       <p class="text-sm font-medium text-gray-600">
-        Olá, {{ auth.usuario()?.nome }}. Crie uma turma para começar a adaptar atividades.
+        Olá, {{ auth.usuario()?.nome }}. Acesse suas turmas ou crie uma nova.
       </p>
     </div>
 
@@ -73,7 +73,14 @@
         <a [routerLink]="['/professor/turmas', turma.id]"
            class="block bg-white border-2 border-lingol-dark rounded-3xl p-5 shadow-[4px_4px_0px_#1e1b4b] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_#1e1b4b] transition-all">
           <div class="flex items-start justify-between gap-2">
-            <h3 class="font-black text-lg text-lingol-primary leading-tight">{{ turma.nome }}</h3>
+            <div class="min-w-0">
+              <h3 class="font-black text-lg text-lingol-primary leading-tight">{{ turma.nome }}</h3>
+              @if (!turma.ehProprietario) {
+                <span class="inline-block text-[10px] font-black uppercase tracking-wide bg-purple-100 text-lingol-purple px-2 py-1 rounded-full mt-1">
+                  Compartilhada
+                </span>
+              }
+            </div>
             <span class="text-xs font-bold bg-lingol-cardBlue px-2 py-1 rounded-full whitespace-nowrap">
               {{ turma.ano }}º ano
             </span>

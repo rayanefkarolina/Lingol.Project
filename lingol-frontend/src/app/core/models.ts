@@ -25,6 +25,29 @@ export interface Turma {
   materia: string;
   ano: number;
   professorId: string;
+  ehProprietario: boolean;
+  podeVisualizar: boolean;
+  podeEditar: boolean;
+  podeAdicionar: boolean;
+  podeExcluir: boolean;
+}
+
+export interface PermissaoProfessorTurma {
+  professorId: string;
+  nome: string;
+  email: string;
+  podeVisualizar: boolean;
+  podeEditar: boolean;
+  podeAdicionar: boolean;
+  podeExcluir: boolean;
+}
+
+export interface DefinirPermissaoProfessorTurma {
+  email: string;
+  podeVisualizar: boolean;
+  podeEditar: boolean;
+  podeAdicionar: boolean;
+  podeExcluir: boolean;
 }
 
 export interface Aluno {
@@ -51,6 +74,8 @@ export interface AtividadeResumo {
   id: string;
   livro: string;
   assunto: string;
+  ehPreparatorio?: boolean;
+  tipoProva?: string | null;
   materia: string;
   modo: ModoGamificacao;
   tema: string;
@@ -59,6 +84,10 @@ export interface AtividadeResumo {
   numQuestoes: number;
   ehRevisao: boolean;
   alunoId: string | null;
+  atividadeOcultaParaAluno?: boolean;
+  alunosOcultos?: string[];
+  atividadeOrigemId?: string | null;
+  atividadeOrigemAssunto?: string | null;
   entrega: EntregaDaAtividade | null;
 }
 
@@ -71,6 +100,7 @@ export interface Questao {
   id: string;
   ordem: number;
   enunciado: string;
+  textoBase?: string | null;
   tipo: string;
   alternativas: string[];
 }
@@ -94,6 +124,20 @@ export interface ResponderQuestaoResponse {
   acertos: number;
   respondidas: number;
   totalQuestoes: number;
+}
+
+export interface ProgressoAtividadeResponse {
+  finalizada: boolean;
+  acertos: number;
+  erros: number;
+  totalQuestoes: number;
+  nota: number | null;
+  respostas: {
+    questaoId: string;
+    respostaEscolhida: string;
+    estaCorreta: boolean;
+    explicacao: string | null;
+  }[];
 }
 
 export interface FinalizarAtividadeResponse {
@@ -172,6 +216,8 @@ export interface EntregaResumo {
   respostaAlunoId: string;
   atividadeId: string;
   assunto: string;
+  materia: string;
+  ehPreparatorio: boolean;
   acertos: number;
   erros: number;
   totalQuestoes: number;

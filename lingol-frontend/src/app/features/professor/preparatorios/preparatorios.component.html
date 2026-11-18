@@ -1,0 +1,130 @@
+<section class="animate-fade-in max-w-3xl mx-auto w-full space-y-6">
+  <div>
+    <h1 class="text-3xl font-black text-lingol-primary">
+      <i class="fa-solid fa-file-circle-check"></i> Preparatórios
+    </h1>
+    <p class="text-sm font-medium text-gray-600 mt-1">
+      Envie um PDF com questões e gere um jogo de preparação alinhado à prova escolhida.
+    </p>
+  </div>
+
+  @if (!atividadeId()) {
+    <div class="bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] p-6 space-y-5">
+      @if (mensagemErro()) {
+        <div class="bg-red-50 border-2 border-red-300 text-red-700 rounded-2xl p-3 text-sm font-bold">
+          {{ mensagemErro() }}
+        </div>
+      }
+
+      <div>
+        <label for="turma" class="text-xs font-bold block mb-1">TURMA</label>
+        <select id="turma" [(ngModel)]="turmaId" [disabled]="carregandoTurmas() || turmas().length === 0"
+                class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm bg-white">
+          @for (turma of turmas(); track turma.id) {
+            <option [value]="turma.id">{{ turma.nome }} — {{ turma.ano }}º ano</option>
+          }
+        </select>
+        @if (!carregandoTurmas() && turmas().length === 0) {
+          <p class="text-xs text-amber-700 mt-2">
+            Você precisa criar uma turma antes. <a routerLink="/professor" class="font-bold underline">Ir para Minhas turmas</a>
+          </p>
+        }
+      </div>
+
+      <div>
+        <label for="prova" class="text-xs font-bold block mb-1">PROVA PREPARATÓRIA</label>
+        <select id="prova" [(ngModel)]="prova"
+                class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm bg-white">
+          @for (opcao of provas; track opcao) {
+            <option [value]="opcao">{{ opcao }}</option>
+          }
+        </select>
+      </div>
+
+      @if (prova === 'Outro') {
+        <div>
+          <label for="outra-prova" class="text-xs font-bold block mb-1">NOME DA PROVA</label>
+          <input id="outra-prova" [(ngModel)]="outraProva" maxlength="100"
+                 placeholder="Ex.: vestibular ou avaliação da rede"
+                 class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm">
+        </div>
+      }
+
+      <div>
+        <label for="materia" class="text-xs font-bold block mb-1">MATÉRIA DO PREPARATÓRIO</label>
+        <select id="materia" [(ngModel)]="materia"
+                class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm bg-white">
+          @for (opcao of materias; track opcao) {
+            <option [value]="opcao">{{ opcao }}</option>
+          }
+        </select>
+      </div>
+
+      @if (materia === 'Outros') {
+        <div>
+          <label for="outra-materia" class="text-xs font-bold block mb-1">NOME DA MATÉRIA</label>
+          <input id="outra-materia" [(ngModel)]="outraMateria" maxlength="100"
+                 placeholder="Ex.: Ciências"
+                 class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm">
+        </div>
+      }
+
+      <div>
+        <label for="arquivo" class="text-xs font-bold block mb-1">ARQUIVO COM QUESTÕES (PDF)</label>
+        <input id="arquivo" type="file" accept=".pdf,application/pdf" (change)="selecionarArquivo($event)"
+               class="w-full p-3 border-2 border-dashed border-gray-400 rounded-xl text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-lingol-cardBlue file:px-3 file:py-2 file:font-bold">
+        <p class="text-[11px] text-gray-500 mt-1">
+          PDF de até 10 MB. O arquivo será enviado ao serviço de IA para leitura e geração das questões.
+        </p>
+        @if (arquivo) {
+          <p class="text-xs font-bold text-lingol-purple mt-2">
+            <i class="fa-solid fa-file-pdf"></i> {{ arquivo.name }}
+          </p>
+        }
+      </div>
+
+      <div>
+        <label for="questoes" class="text-xs font-bold block mb-1">QUANTIDADE DE QUESTÕES</label>
+        <input id="questoes" type="number" min="1" [max]="maxQuestoes" [(ngModel)]="numQuestoes"
+               class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm">
+        <p class="text-[11px] text-gray-500 mt-1">O jogo aceita de 1 a {{ maxQuestoes }} questões.</p>
+      </div>
+
+      <button (click)="gerar()" [disabled]="enviando() || carregandoTurmas() || turmas().length === 0"
+              class="btn-lingol btn-purple w-full disabled:opacity-50">
+        @if (enviando()) {
+          <i class="fa-solid fa-circle-notch animate-spin"></i> Enviando PDF...
+        } @else {
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Gerar jogo preparatório
+        }
+      </button>
+    </div>
+  } @else {
+    <div class="bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] p-8 text-center space-y-4">
+      @if (mensagemErro()) {
+        <div class="bg-red-50 border-2 border-red-300 text-red-700 rounded-2xl p-3 text-sm font-bold">
+          {{ mensagemErro() }}
+        </div>
+      }
+
+      @if (statusGeracao() === 'Pronta') {
+        <i class="fa-solid fa-circle-check text-5xl text-green-500"></i>
+        <h2 class="text-xl font-black text-green-600">Jogo preparatório pronto!</h2>
+        <p class="text-sm text-gray-600">{{ questoesGeradas() }} questões geradas para sua turma.</p>
+        <button (click)="abrirAtividade()" class="btn-lingol btn-primary">Ver jogo</button>
+      } @else if (statusGeracao() === 'Erro') {
+        <i class="fa-solid fa-circle-exclamation text-5xl text-red-500"></i>
+        <h2 class="text-xl font-black text-red-600">Não foi possível gerar o preparatório.</h2>
+        <button (click)="tentarNovamente()" class="btn-lingol btn-primary">Tentar novamente</button>
+      } @else {
+        <i class="fa-solid fa-circle-notch animate-spin text-5xl text-lingol-purple"></i>
+        <h2 class="text-xl font-black text-lingol-primary">Gerando seu jogo...</h2>
+        <p class="text-sm text-gray-600">A IA está analisando o PDF e preparando as questões. Você pode aguardar ou voltar para a turma.</p>
+        @if (mensagemAviso()) {
+          <p class="text-xs text-amber-700">{{ mensagemAviso() }}</p>
+        }
+        <a [routerLink]="['/professor/turmas', turmaId]" class="btn-lingol inline-block">Voltar para a turma</a>
+      }
+    </div>
+  }
+</section>

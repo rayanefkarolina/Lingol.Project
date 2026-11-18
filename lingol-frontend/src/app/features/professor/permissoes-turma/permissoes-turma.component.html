@@ -1,0 +1,94 @@
+<section class="animate-fade-in max-w-4xl mx-auto space-y-6">
+  <a [routerLink]="['/professor/turmas', turmaId]"
+     class="text-xs font-bold text-gray-500 hover:text-lingol-primary">
+    <i class="fa-solid fa-arrow-left"></i> Voltar para a turma
+  </a>
+
+  <header>
+    <h1 class="text-3xl font-black text-lingol-primary">Permissões da turma</h1>
+    <p class="text-sm text-gray-600">Conceda acesso somente a professores já cadastrados.</p>
+  </header>
+
+  @if (mensagemErro()) {
+    <div class="bg-red-50 border-2 border-red-300 text-red-700 rounded-2xl p-3 text-sm font-bold">
+      {{ mensagemErro() }}
+    </div>
+  }
+  @if (mensagemSucesso()) {
+    <div class="bg-green-50 border-2 border-green-300 text-green-700 rounded-2xl p-3 text-sm font-bold">
+      {{ mensagemSucesso() }}
+    </div>
+  }
+
+  <form (ngSubmit)="salvar()"
+        class="bg-white border-2 border-lingol-dark rounded-3xl shadow-[6px_6px_0px_#1e1b4b] p-6 space-y-4">
+    <h2 class="font-black text-lg">Adicionar ou atualizar professor</h2>
+    <div>
+      <label for="email-professor" class="text-xs font-bold block mb-1">E-MAIL DO PROFESSOR</label>
+      <input id="email-professor" name="email" type="email" required maxlength="200"
+             [(ngModel)]="formulario.email" placeholder="professor@escola.com"
+             class="w-full p-3 border-2 border-lingol-dark rounded-xl text-sm">
+    </div>
+
+    <fieldset class="grid sm:grid-cols-2 gap-3">
+      <legend class="text-xs font-black text-gray-500 mb-2">PERMISSÕES</legend>
+      <label class="flex items-start gap-2 text-sm">
+        <input type="checkbox" name="visualizar" [(ngModel)]="formulario.podeVisualizar">
+        <span><strong>Visualizar</strong><br><span class="text-xs text-gray-500">Turma, alunos, atividades e relatórios</span></span>
+      </label>
+      <label class="flex items-start gap-2 text-sm">
+        <input type="checkbox" name="editar" [(ngModel)]="formulario.podeEditar">
+        <span><strong>Editar</strong><br><span class="text-xs text-gray-500">Dados da turma e visibilidade das atividades</span></span>
+      </label>
+      <label class="flex items-start gap-2 text-sm">
+        <input type="checkbox" name="adicionar" [(ngModel)]="formulario.podeAdicionar">
+        <span><strong>Adicionar</strong><br><span class="text-xs text-gray-500">Alunos, atividades e revisões</span></span>
+      </label>
+      <label class="flex items-start gap-2 text-sm">
+        <input type="checkbox" name="excluir" [(ngModel)]="formulario.podeExcluir">
+        <span><strong>Excluir</strong><br><span class="text-xs text-gray-500">Alunos e atividades</span></span>
+      </label>
+    </fieldset>
+
+    <button type="submit" [disabled]="salvando()" class="btn-lingol btn-primary">
+      @if (salvando()) {
+        <i class="fa-solid fa-circle-notch animate-spin"></i> Salvando...
+      } @else {
+        <i class="fa-solid fa-floppy-disk"></i> Salvar permissões
+      }
+    </button>
+  </form>
+
+  <div class="bg-white border-2 border-lingol-dark rounded-3xl p-6 space-y-3">
+    <h2 class="font-black text-lg">Professores com acesso</h2>
+    @if (carregando()) {
+      <p class="text-center text-gray-400 py-6"><i class="fa-solid fa-circle-notch animate-spin"></i></p>
+    } @else if (permissoes().length === 0) {
+      <p class="text-sm text-gray-500">Nenhum outro professor tem acesso a esta turma.</p>
+    } @else {
+      @for (permissao of permissoes(); track permissao.professorId) {
+        <article class="border-2 border-gray-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+          <div class="min-w-0">
+            <p class="font-black">{{ permissao.nome }}</p>
+            <p class="text-sm text-gray-500">{{ permissao.email }}</p>
+            <p class="text-xs text-gray-600 mt-2">
+              {{ permissao.podeVisualizar ? 'Visualizar' : '' }}
+              {{ permissao.podeEditar ? ' • Editar' : '' }}
+              {{ permissao.podeAdicionar ? ' • Adicionar' : '' }}
+              {{ permissao.podeExcluir ? ' • Excluir' : '' }}
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" (click)="editar(permissao)"
+                    class="btn-lingol text-xs py-1">Editar acesso</button>
+            <button type="button" (click)="revogar(permissao)"
+                    [disabled]="removendo() === permissao.professorId"
+                    class="btn-lingol text-xs py-1 bg-red-100 text-red-700 border-red-300">
+              {{ removendo() === permissao.professorId ? 'Revogando...' : 'Revogar' }}
+            </button>
+          </div>
+        </article>
+      }
+    }
+  </div>
+</section>

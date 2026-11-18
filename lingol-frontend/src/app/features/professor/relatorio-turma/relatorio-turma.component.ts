@@ -48,6 +48,7 @@ export class RelatorioTurmaComponent implements OnDestroy {
 
   alunoSelecionado = signal<RelatorioAluno | null>(null);
   carregandoAluno = signal(false);
+  graficoExpandido = signal(false);
 
   /** Revisões em andamento, por entrega, para travar o botão e dar retorno. */
   gerandoRevisao = signal<Record<string, boolean>>({});
@@ -142,5 +143,63 @@ export class RelatorioTurmaComponent implements OnDestroy {
     if (nota >= 7) return 'text-green-600';
     if (nota >= 5) return 'text-amber-600';
     return 'text-red-600';
+  }
+
+  categoriaDaEntrega(entrega: EntregaResumo): string {
+    if (entrega.ehPreparatorio) return entrega.materia?.trim() || 'Matéria não informada';
+    return entrega.assunto.trim() || 'Assunto não informado';
+  }
+
+  desempenhoPorCategoria(entregas: EntregaResumo[], preparatorio: boolean): {
+    categoria: string;
+    notaMedia: number;
+    entregas: EntregaResumo[];
+    pontosSvg: string;
+    pontos: { x: number; y: number; entrega: EntregaResumo }[];
+  }[] {
+    const grupos = new Map<string, EntregaResumo[]>();
+
+    for (const entrega of entregas) {
+      if (entrega.ehPreparatorio !== preparatorio || entrega.nota === null) continue;
+
+      const categoria = this.categoriaDaEntrega(entrega).trim() || 'Sem categoria';
+      const grupo = grupos.get(categoria) ?? [];
+      grupo.push(entrega);
+      grupos.set(categoria, grupo);
+    }
+
+    return [...grupos.entries()]
+      .map(([categoria, itens]) => {
+        const entregasOrdenadas = [...itens].sort(
+          (a, b) => new Date(b.dataEnvio).getTime() - new Date(a.dataEnvio).getTime()
+        );
+        const pontos = this.pontosPorCategoria(entregasOrdenadas);
+        return {
+          categoria,
+          notaMedia: Math.round(
+            (itens.reduce((total, item) => total + (item.nota ?? 0), 0) / itens.length) * 100
+          ) / 100,
+          entregas: entregasOrdenadas,
+          pontos,
+          pontosSvg: pontos.map(ponto => `${ponto.x},${ponto.y}`).join(' ')
+        };
+      })
+      .sort((a, b) => a.categoria.localeCompare(b.categoria, 'pt-BR'));
+  }
+
+  private pontosPorCategoria(entregas: EntregaResumo[]): {
+    x: number;
+    y: number;
+    entrega: EntregaResumo;
+  }[] {
+    const ordenadas = [...entregas]
+      .filter(entrega => entrega.nota !== null)
+      .sort((a, b) => new Date(a.dataEnvio).getTime() - new Date(b.dataEnvio).getTime());
+
+    return ordenadas.map((entrega, indice) => ({
+      x: ordenadas.length === 1 ? 50 : (indice / (ordenadas.length - 1)) * 100,
+      y: 100 - ((entrega.nota ?? 0) / 10) * 100,
+      entrega
+    }));
   }
 }

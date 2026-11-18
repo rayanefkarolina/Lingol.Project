@@ -57,7 +57,12 @@ export class NovaAtividadeComponent implements OnDestroy {
 
   constructor() {
     this.turmaService.obter(this.turmaId).subscribe({
-      next: t => this.turma.set(t),
+      next: t => {
+        this.turma.set(t);
+        if (!t.podeAdicionar) {
+          this.mensagemErro.set('Você não tem permissão para adicionar atividades nesta turma.');
+        }
+      },
       error: () => this.mensagemErro.set('Turma não encontrada.')
     });
 
@@ -101,6 +106,11 @@ export class NovaAtividadeComponent implements OnDestroy {
       return;
     }
 
+    if (!Number.isInteger(this.form.numQuestoes) || this.form.numQuestoes < 1) {
+      this.mensagemErro.set('Não é possível gerar 0 questões. Informe pelo menos 1 questão.');
+      return;
+    }
+
     if (this.form.modo === 'Rpg' && this.form.numQuestoes > this.maxQuestoesGamificada) {
       this.mensagemErro.set(
         `A atividade gamificada aceita no máximo ${this.maxQuestoesGamificada} questões.`);
@@ -123,7 +133,7 @@ export class NovaAtividadeComponent implements OnDestroy {
       livro: this.form.livro.trim(),
       assunto: this.form.assunto.trim(),
       materia: this.turma()?.materia,
-      numQuestoes: this.form.numQuestoes || 10,
+      numQuestoes: this.form.numQuestoes,
       modo: this.form.modo,
       tema: this.form.modo === 'Rpg' ? this.form.tema : undefined,
       perfilAeeContexto: this.contextoAee || undefined
